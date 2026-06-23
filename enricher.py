@@ -21,6 +21,11 @@ Responsibilities:
         Strategy: decode all set bits, join with |
         Example: "0x41000" → "0x41000 (Write DACL | Delete)"
         Hex values not in ds_access_mask.json bits → left as-is
+    GUIDs in EventID 4662 only (Properties, ObjectType fields)
+        Strategy: Option B — keep GUID, append name
+        Example: "{1131f6aa...}" → "{1131f6aa...} (DS-Replication-Get-Changes)"
+        GUIDs not in ad_guids.json → left as-is
+        Multiple GUIDs in one field each resolved independently
 - Preserve \r\n\t delimiters in EventData — do NOT strip
 
 Design:
@@ -40,8 +45,11 @@ from typing import Generator
 logger = logging.getLogger(__name__)
 
 # Compiled pattern to find %% codes in strings
-# Matches %%<digits> — e.g. %%1538, %%7688, %%14593
 _PCT_CODE_RE = re.compile(r'%%\d+')
+
+# Compiled pattern to find GUIDs in strings
+# Matches {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx} — case insensitive
+_GUID_RE = re.compile(r'\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\}')
 
 
 class Lookups:
@@ -57,6 +65,7 @@ class Lookups:
         fallback_path: str | Path | None = None,
         logon_types_path: str | Path | None = None,
         ds_access_mask_path: str | Path | None = None,
+        ad_guids_path: str | Path | None = None,
     ):
         """
         Load all lookup files from disk.
@@ -67,19 +76,22 @@ class Lookups:
             fallback_path:        Path to soc_event_lookup.json (optional)
             logon_types_path:     Path to logon_types.json (optional)
             ds_access_mask_path:  Path to ds_access_mask.json (optional)
+            ad_guids_path:        Path to ad_guids.json (optional)
 
         Raises:
             FileNotFoundError: If a required lookup file is missing.
         """
-        self.event_map: dict[str, str] = {}        # "Provider_EventID" → description
-        self.msobjs_map: dict[str, str] = {}       # "%%XXXX" → "%%XXXX (Description)"
-        self.logon_types_map: dict[str, str] = {}  # "3" → "3 (Network)"
+        self.event_map: dict[str, str] = {}           # "Provider_EventID" → description
+        self.msobjs_map: dict[str, str] = {}          # "%%XXXX" → "%%XXXX (Description)"
+        self.logon_types_map: dict[str, str] = {}     # "3" → "3 (Network)"
         self.ds_access_mask_map: dict[int, str] = {}  # 0x40000 → "Write DACL"
+        self.ad_guids_map: dict[str, str] = {}        # "{guid}" → "{guid} (Name)"
 
         self._load_event_map(master_path, fallback_path)
         self._load_msobjs_map(msobjs_path)
         self._load_logon_types_map(logon_types_path)
         self._load_ds_access_mask_map(ds_access_mask_path)
+        self._load_ad_guids_map(ad_guids_path)
 
     def _load_event_map(
         self,
@@ -178,6 +190,30 @@ class Lookups:
 
         logger.info("Loaded %d DS AccessMask entries from: %s", len(data), ds_access_mask_path)
 
+    def _load_ad_guids_map(self, ad_guids_path: str | Path | None) -> None:
+        """
+        Build AD GUID map.
+        Maps "{guid}" → "{guid} (Name)" for Option B replacement.
+        GUID keys stored in lowercase for case-insensitive matching.
+
+        If ad_guids_path is None or file doesn't exist, skips silently.
+        """
+        if ad_guids_path is None:
+            return
+
+        ad_guids_path = Path(ad_guids_path)
+        if not ad_guids_path.exists():
+            logger.warning("AD GUIDs lookup not found — skipping: %s", ad_guids_path)
+            return
+
+        data = json.loads(ad_guids_path.read_text(encoding="utf-8-sig"))
+        for entry in data:
+            guid = entry["GUID"].lower()              # normalize to lowercase
+            name = entry["Name"]
+            self.ad_guids_map[guid] = name            # "{guid}" → "Name"
+
+        logger.info("Loaded %d AD GUID entries from: %s", len(data), ad_guids_path)
+
     def resolve_event_description(
         self, provider_name: str | None, event_id: int | str | None
     ) -> str | None:
@@ -243,6 +279,28 @@ class Lookups:
 
         return f"{value} ({' | '.join(descriptions)})"
 
+    def resolve_guids(self, value: str) -> str:
+        """
+        Replace all GUIDs in a string with Option B format.
+        GUIDs not in ad_guids_map are left as-is.
+        Multiple GUIDs in one string are each resolved independently.
+
+        Example:
+            "{1131f6aa-9c07-11d1-f79f-00c04fc2dcd2}"
+            → "{1131f6aa-9c07-11d1-f79f-00c04fc2dcd2} (DS-Replication-Get-Changes)"
+
+            "{1131f6aa...}{1131f6ab...}"
+            → "{1131f6aa...} (DS-Replication-Get-Changes){1131f6ab...} (DS-Replication-Get-Changes-All)"
+
+        Matching is case-insensitive — GUIDs from Windows logs may be mixed case.
+        """
+        def _replace(match: re.Match) -> str:
+            guid = match.group(0)
+            name = self.ad_guids_map.get(guid.lower())
+            return f"{guid} ({name})" if name else guid
+
+        return _GUID_RE.sub(_replace, value)
+
     def resolve_pct_codes(self, value: str) -> str:
         """
         Replace all %% codes in a string with Option B format.
@@ -265,6 +323,9 @@ LOGON_TYPE_EVENT_IDS = {4624, 4625, 4648}
 
 # EventIDs that carry an AccessMask field in EventData requiring bitwise decode.
 DS_ACCESS_MASK_EVENT_IDS = {4662}
+
+# EventIDs that carry GUIDs in EventData fields (Properties, ObjectType).
+DS_GUID_EVENT_IDS = {4662}
 
 
 def _walk_event_data(obj, msobjs_map_fn) -> object:
@@ -297,6 +358,8 @@ def enrich(
     1. Resolve EventDescription from Provider_Name + EventID
     2. Resolve %% codes in all EventData string values (blind — %% prefix is unambiguous)
     3. Resolve LogonType in EventData — scoped to LOGON_TYPE_EVENT_IDS only
+    4. Resolve AccessMask in EventData — scoped to DS_ACCESS_MASK_EVENT_IDS only
+    5. Resolve GUIDs in EventData — scoped to DS_GUID_EVENT_IDS only
 
     Args:
         records: Generator of normalized dicts from transform.py
@@ -332,5 +395,14 @@ def enrich(
             access_mask = record["EventData"].get("AccessMask")
             if access_mask is not None:
                 record["EventData"]["AccessMask"] = lookups.resolve_access_mask(access_mask)
+
+        # 5. Resolve GUIDs — only for EventID 4662 (Properties, ObjectType fields)
+        #    Scans all string values in EventData — GUIDs are globally unique
+        #    so scanning broadly is safe, no risk of false matches
+        if event_id in DS_GUID_EVENT_IDS and isinstance(record.get("EventData"), dict):
+            record["EventData"] = _walk_event_data(
+                record["EventData"],
+                lookups.resolve_guids,
+            )
 
         yield record
