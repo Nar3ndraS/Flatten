@@ -58,6 +58,11 @@ def build_arg_parser() -> argparse.ArgumentParser:
         help="Logon type lookup JSON (default: lookups/logon_types.json)",
     )
     p.add_argument(
+        "--ad-guids",
+        default=None,
+        help="AD GUID lookup JSON (default: lookups/ad_guids.json)",
+    )
+    p.add_argument(
         "--ds-access-mask",
         default=None,
         help="DS AccessMask lookup JSON (default: lookups/ds_access_mask.json)",
@@ -100,20 +105,21 @@ def setup_logging(warnings_path: str, verbose: bool) -> None:
     root.addHandler(warn_file)
 
 
-def resolve_lookup_paths(args: argparse.Namespace) -> tuple[Path, Path, Path | None, Path | None, Path | None]:
+def resolve_lookup_paths(args: argparse.Namespace):
     script_dir = Path(__file__).parent
     lookups_dir = script_dir / "lookups"
 
-    master_path          = Path(args.master) if args.master else lookups_dir / "master_security_auditing_index_micosoft.json"
-    msobjs_path          = Path(args.msobjs) if args.msobjs else lookups_dir / "msobjs_lookup.json"
-    fallback_path        = Path(args.lookup) if args.lookup else None
-    logon_types_path     = Path(args.logon_types) if args.logon_types else lookups_dir / "logon_types.json"
-    ds_access_mask_path  = Path(args.ds_access_mask) if args.ds_access_mask else lookups_dir / "ds_access_mask.json"
+    master_path         = Path(args.master) if args.master else lookups_dir / "master_security_auditing_index_micosoft.json"
+    msobjs_path         = Path(args.msobjs) if args.msobjs else lookups_dir / "msobjs_lookup.json"
+    fallback_path       = Path(args.lookup) if args.lookup else None
+    logon_types_path    = Path(args.logon_types) if args.logon_types else lookups_dir / "logon_types.json"
+    ds_access_mask_path = Path(args.ds_access_mask) if args.ds_access_mask else lookups_dir / "ds_access_mask.json"
+    ad_guids_path       = Path(args.ad_guids) if args.ad_guids else lookups_dir / "ad_guids.json"
 
-    return master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path
+    return master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path, ad_guids_path
 
 
-def print_header(args, master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path) -> None:
+def print_header(args, master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path, ad_guids_path) -> None:
     print()
     print("╔══════════════════════════════════════════════════════╗")
     print("║         EVTX Pipeline — Python Edition               ║")
@@ -126,11 +132,12 @@ def print_header(args, master_path, msobjs_path, fallback_path, logon_types_path
     print(f"  Fallback        : {fallback_path or '(none)'}")
     print(f"  Logon types     : {logon_types_path or '(none)'}")
     print(f"  DS AccessMask   : {ds_access_mask_path or '(none)'}")
+    print(f"  AD GUIDs        : {ad_guids_path or '(none)'}")
     print(f"  Warnings        : {args.warnings}")
     print()
 
 
-def print_summary(args, master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path, written) -> None:
+def print_summary(args, master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path, ad_guids_path, written) -> None:
     print()
     print("╔══════════════════════════════════════════════════════╗")
     print("║                      SUMMARY                        ║")
@@ -145,6 +152,8 @@ def print_summary(args, master_path, msobjs_path, fallback_path, logon_types_pat
         print(f"  {'Logon types lookup:':<30} {logon_types_path}")
     if ds_access_mask_path:
         print(f"  {'DS AccessMask lookup:':<30} {ds_access_mask_path}")
+    if ad_guids_path:
+        print(f"  {'AD GUIDs lookup:':<30} {ad_guids_path}")
     print(f"  {'Warnings:':<30} {args.warnings}")
     print()
     print("  Done.")
@@ -158,9 +167,9 @@ def main() -> None:
     setup_logging(args.warnings, args.verbose)
     logger = logging.getLogger(__name__)
 
-    master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path = resolve_lookup_paths(args)
+    master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path, ad_guids_path = resolve_lookup_paths(args)
 
-    print_header(args, master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path)
+    print_header(args, master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path, ad_guids_path)
 
     # ── Load lookups ──────────────────────────────────────────────────────────
     logger.info("[ INIT ] Loading lookup files...")
@@ -171,6 +180,7 @@ def main() -> None:
             fallback_path=fallback_path,
             logon_types_path=logon_types_path,
             ds_access_mask_path=ds_access_mask_path,
+            ad_guids_path=ad_guids_path,
         )
     except FileNotFoundError as exc:
         logger.error("ERROR: %s", exc)
@@ -197,7 +207,7 @@ def main() -> None:
         logger.error("ERROR writing output: %s", exc)
         sys.exit(1)
 
-    print_summary(args, master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path, written)
+    print_summary(args, master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path, ad_guids_path, written)
 
 
 if __name__ == "__main__":
