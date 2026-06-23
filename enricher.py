@@ -69,6 +69,7 @@ class Lookups:
         logon_types_path: str | Path | None = None,
         ds_access_mask_path: str | Path | None = None,
         ad_guids_path: str | Path | None = None,
+        domain_objects_path: str | Path | None = None,
     ):
         """
         Load all lookup files from disk.
@@ -80,6 +81,7 @@ class Lookups:
             logon_types_path:     Path to logon_types.json (optional)
             ds_access_mask_path:  Path to ds_access_mask.json (optional)
             ad_guids_path:        Path to ad_guids.json (optional)
+            domain_objects_path:  Path to domain_objects.json (optional)
 
         Raises:
             FileNotFoundError: If a required lookup file is missing.
@@ -95,6 +97,7 @@ class Lookups:
         self._load_logon_types_map(logon_types_path)
         self._load_ds_access_mask_map(ds_access_mask_path)
         self._load_ad_guids_map(ad_guids_path)
+        self._load_domain_objects_map(domain_objects_path)
 
     def _load_event_map(
         self,
@@ -216,6 +219,35 @@ class Lookups:
             self.ad_guids_map[guid] = name            # "{guid}" → "Name"
 
         logger.info("Loaded %d AD GUID entries from: %s", len(data), ad_guids_path)
+
+    def _load_domain_objects_map(self, domain_objects_path: str | Path | None) -> None:
+        """
+        Load domain_objects.json and merge into ad_guids_map.
+        Merging means both resolve_guids() and resolve_pct_guids() automatically
+        benefit from domain object GUIDs without any extra code.
+
+        domain_objects.json takes lower priority — ad_guids_map entries
+        already loaded from ad_guids.json are not overwritten.
+
+        If domain_objects_path is None or file doesn't exist, skips silently.
+        """
+        if domain_objects_path is None:
+            return
+
+        domain_objects_path = Path(domain_objects_path)
+        if not domain_objects_path.exists():
+            logger.warning("Domain objects lookup not found — skipping: %s", domain_objects_path)
+            return
+
+        data = json.loads(domain_objects_path.read_text(encoding="utf-8-sig"))
+        added = 0
+        for entry in data:
+            guid = entry["GUID"].lower()
+            if guid not in self.ad_guids_map:   # don't overwrite ad_guids entries
+                self.ad_guids_map[guid] = entry["Name"]
+                added += 1
+
+        logger.info("Merged %d domain object entries from: %s", added, domain_objects_path)
 
     def resolve_event_description(
         self, provider_name: str | None, event_id: int | str | None
