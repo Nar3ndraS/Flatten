@@ -157,15 +157,16 @@ def _process_event(raw_event: dict) -> dict:
     return flat
 
 
-def load(input_path: str | Path) -> Generator[dict, None, None]:
+def load(input_path: str | Path, warnings=None) -> Generator[dict, None, None]:
     """
     Stream-parse a raw evtx_dump NDJSON file, yielding one flat dict per record.
 
-    Malformed lines (invalid JSON, missing .Event) are logged as warnings
-    and skipped — the pipeline keeps running.
+    Malformed lines (invalid JSON, missing .Event) are added to warnings
+    collector if provided, then skipped — the pipeline keeps running.
 
     Args:
         input_path: Path to the raw evtx_dump NDJSON file.
+        warnings:   Optional PipelineWarnings instance for collecting skipped records.
 
     Yields:
         Flat dicts ready for transform.py.
@@ -185,12 +186,18 @@ def load(input_path: str | Path) -> Generator[dict, None, None]:
             try:
                 raw = json.loads(line)
             except json.JSONDecodeError as exc:
-                logger.warning("[WARN] Line %d: invalid JSON — skipped. (%s)", lineno, exc)
+                msg = f"[WARN] Line {lineno}: invalid JSON — skipped. ({exc})"
+                logger.warning(msg)
+                if warnings is not None:
+                    warnings.skipped_records.append(msg)
                 continue
 
             # Must have top-level .Event
             if not isinstance(raw, dict) or "Event" not in raw:
-                logger.warning("[WARN] Line %d: missing .Event field — skipped.", lineno)
+                msg = f"[WARN] Line {lineno}: missing .Event field — skipped."
+                logger.warning(msg)
+                if warnings is not None:
+                    warnings.skipped_records.append(msg)
                 continue
 
             # Flatten and yield
@@ -198,5 +205,8 @@ def load(input_path: str | Path) -> Generator[dict, None, None]:
                 record = _process_event(raw["Event"])
                 yield record
             except Exception as exc:  # noqa: BLE001
-                logger.warning("[WARN] Line %d: failed to process record — skipped. (%s)", lineno, exc)
+                msg = f"[WARN] Line {lineno}: failed to process record — skipped. ({exc})"
+                logger.warning(msg)
+                if warnings is not None:
+                    warnings.skipped_records.append(msg)
                 continue
