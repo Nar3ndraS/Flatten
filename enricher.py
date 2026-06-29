@@ -92,6 +92,11 @@ class Lookups:
         self.ds_access_mask_map: dict[int, str] = {}  # 0x40000 → "Write DACL"
         self.ad_guids_map: dict[str, str] = {}        # "{guid}" → "{guid} (Name)"
 
+        # Unresolved value tracking — populated during enrichment, read by main.py
+        self.unresolved_pct_codes: set[str] = set()   # %%XXXX codes not in msobjs_map
+        self.unresolved_guids: set[str] = set()       # {guid} not in ad_guids_map
+        self.unresolved_pct_guids: set[str] = set()   # %{guid} not in ad_guids_map
+
         self._load_event_map(master_path, fallback_path)
         self._load_msobjs_map(msobjs_path)
         self._load_logon_types_map(logon_types_path)
@@ -314,59 +319,56 @@ class Lookups:
 
         return f"{value} ({' | '.join(descriptions)})"
 
-    def resolve_guids(self, value: str) -> str:
+    def resolve_guids(self, value: str, warnings=None) -> str:
         """
         Replace all GUIDs in a string with Option B format.
         GUIDs not in ad_guids_map are left as-is.
-        Multiple GUIDs in one string are each resolved independently.
-
-        Example:
-            "{1131f6aa-9c07-11d1-f79f-00c04fc2dcd2}"
-            → "{1131f6aa-9c07-11d1-f79f-00c04fc2dcd2} (DS-Replication-Get-Changes)"
-
-            "{1131f6aa...}{1131f6ab...}"
-            → "{1131f6aa...} (DS-Replication-Get-Changes){1131f6ab...} (DS-Replication-Get-Changes-All)"
-
-        Matching is case-insensitive — GUIDs from Windows logs may be mixed case.
+        Unresolved GUIDs added to warnings collector if provided.
         """
         def _replace(match: re.Match) -> str:
             guid = match.group(0)
             name = self.ad_guids_map.get(guid.lower())
-            return f"{guid} ({name})" if name else guid
+            if name:
+                return f"{guid} ({name})"
+            if warnings is not None:
+                warnings.unresolved_guids.add(guid.lower())
+            return guid
 
         return _GUID_RE.sub(_replace, value)
 
-    def resolve_pct_guids(self, value: str) -> str:
+    def resolve_pct_guids(self, value: str, warnings=None) -> str:
         """
         Replace all %{guid} format GUIDs in a string with Option B format.
         Used specifically for the ObjectName field in Event 4662.
-        GUIDs not in ad_guids_map are left as-is.
-
-        Example:
-            "%{5206e6c4-9bf2-48cf-96fd-aa43f219c623}"
-            → "%{5206e6c4-9bf2-48cf-96fd-aa43f219c623} (ms-Kds-ProvRootKey)"
+        Unresolved GUIDs added to warnings collector if provided.
         """
         def _replace(match: re.Match) -> str:
-            pct_guid = match.group(0)          # "%{guid}"
-            bare_guid = pct_guid[1:]            # strip % → "{guid}"
+            pct_guid = match.group(0)
+            bare_guid = pct_guid[1:]
             name = self.ad_guids_map.get(bare_guid.lower())
-            return f"{pct_guid} ({name})" if name else pct_guid
+            if name:
+                return f"{pct_guid} ({name})"
+            if warnings is not None:
+                warnings.unresolved_pct_guids.add(pct_guid)
+            return pct_guid
 
         return _PCT_GUID_RE.sub(_replace, value)
 
-    def resolve_pct_codes(self, value: str) -> str:
+    def resolve_pct_codes(self, value: str, warnings=None) -> str:
         """
         Replace all %% codes in a string with Option B format.
         Codes not in msobjs_map are left as-is.
+        Unresolved codes added to warnings collector if provided.
         Preserves \r\n\t delimiters.
-
-        Example:
-            "%%1538\r\n\t\t%%1541"
-            → "%%1538 (READ_CONTROL)\r\n\t\t%%1541 (SYNCHRONIZE)"
         """
         def _replace(match: re.Match) -> str:
             code = match.group(0)
-            return self.msobjs_map.get(code, code)  # leave as-is if not found
+            resolved = self.msobjs_map.get(code)
+            if resolved:
+                return resolved
+            if warnings is not None:
+                warnings.unresolved_pct_codes.add(code)
+            return code
 
         return _PCT_CODE_RE.sub(_replace, value)
 
@@ -381,28 +383,25 @@ DS_ACCESS_MASK_EVENT_IDS = {4662}
 DS_GUID_EVENT_IDS = {4662}
 
 
-def _walk_event_data(obj, msobjs_map_fn) -> object:
+def _walk_event_data(obj, fn) -> object:
     """
-    Recursively walk EventData, applying %% resolution to all string values.
+    Recursively walk EventData, applying fn to all string values.
     Preserves structure — only string leaf values are modified.
-
-    Args:
-        obj:           EventData value (dict, list, str, or other)
-        msobjs_map_fn: Callable that takes a string and returns resolved string
     """
     if isinstance(obj, str):
-        return msobjs_map_fn(obj)
+        return fn(obj)
     elif isinstance(obj, dict):
-        return {k: _walk_event_data(v, msobjs_map_fn) for k, v in obj.items()}
+        return {k: _walk_event_data(v, fn) for k, v in obj.items()}
     elif isinstance(obj, list):
-        return [_walk_event_data(item, msobjs_map_fn) for item in obj]
+        return [_walk_event_data(item, fn) for item in obj]
     else:
-        return obj  # int, float, bool, None — pass through
+        return obj
 
 
 def enrich(
     records: Generator[dict, None, None],
     lookups: Lookups,
+    warnings=None,
 ) -> Generator[dict, None, None]:
     """
     Stream records through enrichment, yielding one enriched dict per record.
@@ -415,8 +414,9 @@ def enrich(
     5. Resolve GUIDs in EventData — scoped to DS_GUID_EVENT_IDS only
 
     Args:
-        records: Generator of normalized dicts from transform.py
-        lookups: Loaded Lookups instance
+        records:  Generator of normalized dicts from transform.py
+        lookups:  Loaded Lookups instance
+        warnings: Optional PipelineWarnings instance for collecting unresolved values
 
     Yields:
         Enriched dicts ready for writer.py
@@ -434,7 +434,7 @@ def enrich(
         if record.get("EventData") is not None:
             record["EventData"] = _walk_event_data(
                 record["EventData"],
-                lookups.resolve_pct_codes,
+                lambda v: lookups.resolve_pct_codes(v, warnings),
             )
 
         # 3. Resolve LogonType — only for EventIDs that actually carry this field
@@ -457,9 +457,9 @@ def enrich(
 
             for field in ("Properties", "ObjectType"):
                 if isinstance(ed.get(field), str):
-                    ed[field] = lookups.resolve_guids(ed[field])
+                    ed[field] = lookups.resolve_guids(ed[field], warnings)
 
             if isinstance(ed.get("ObjectName"), str):
-                ed["ObjectName"] = lookups.resolve_pct_guids(ed["ObjectName"])
+                ed["ObjectName"] = lookups.resolve_pct_guids(ed["ObjectName"], warnings)
 
         yield record
