@@ -37,6 +37,7 @@ evtx-pipeline/
 ├── transform.py
 ├── enricher.py
 ├── writer.py
+├── warnings_collector.py
 ├── generate_lookup.ps1
 ├── generate_msobjs_lookup.ps1
 ├── generate_ds_access_mask.ps1
