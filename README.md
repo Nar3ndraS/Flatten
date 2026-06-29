@@ -13,7 +13,8 @@ Converts raw Windows Event Log exports into clean, enriched NDJSON for ingestion
    - `%%` placeholder codes via `msobjs_lookup.json`
    - `LogonType` for Events 4624, 4625, 4648
    - `AccessMask` for Event 4662 (bitwise decode)
-   - GUIDs for Event 4662 (schema objects + extended rights)
+   - `Properties`, `ObjectType` GUIDs for Event 4662 (schema objects + extended rights)
+   - `ObjectName` `%{guid}` references for Event 4662 (domain objects + OUs + containers)
 4. Outputs one JSON object per line — ready for ADX ingest
 
 ---
@@ -23,7 +24,7 @@ Converts raw Windows Event Log exports into clean, enriched NDJSON for ingestion
 - Python 3.10+
 - [`evtx_dump`](https://github.com/omerbenamram/evtx)
 - `orjson` (optional, recommended for speed) — `pip install orjson`
-- Active Directory lab for generating lookup files (run scripts on DC)
+- Domain Controller access for generating environment-specific lookup files
 
 ---
 
@@ -40,37 +41,41 @@ evtx-pipeline/
 ├── generate_msobjs_lookup.ps1
 ├── generate_ds_access_mask.ps1
 ├── generate_ad_guids.ps1
+├── generate_domain_objects.ps1
 └── lookups/
     ├── master_security_auditing_index_micosoft.json   ← required
     ├── msobjs_lookup.json                             ← required
+    ├── logon_types.json                               ← included
     ├── soc_event_lookup.json                          ← optional
-    ├── logon_types.json                               ← optional
-    ├── ds_access_mask.json                            ← optional
-    └── ad_guids.json                                  ← optional
+    ├── ds_access_mask.json                            ← generate on DC
+    ├── ad_guids.json                                  ← generate on DC
+    └── domain_objects.json                            ← generate on DC
 ```
 
 ---
 
 ## Lookup files
 
-| File | Required | Generate via | Purpose |
-|------|----------|-------------|---------|
-| `master_security_auditing_index_micosoft.json` | Yes | included | EventID → description (Microsoft source) |
-| `msobjs_lookup.json` | Yes | `generate_msobjs_lookup.ps1` on DC | `%%` code resolution |
-| `soc_event_lookup.json` | No | `generate_lookup.ps1` on DC | Fallback EventID descriptions |
-| `logon_types.json` | No | included | LogonType decode for 4624/4625/4648 |
-| `ds_access_mask.json` | No | `generate_ds_access_mask.ps1` | AccessMask decode for 4662 |
-| `ad_guids.json` | No | `generate_ad_guids.ps1` on DC | GUID resolution for 4662 |
+| File | Profile | Source | Purpose |
+|------|---------|--------|---------|
+| `master_security_auditing_index_micosoft.json` | Both | Included | EventID → description (Microsoft source) |
+| `msobjs_lookup.json` | Both | `generate_msobjs_lookup.ps1` on DC | `%%` code resolution |
+| `logon_types.json` | Both | Included | LogonType decode for 4624, 4625, 4648 |
+| `soc_event_lookup.json` | Both | `generate_lookup.ps1` on DC | Fallback EventID descriptions |
+| `ds_access_mask.json` | Both | `generate_ds_access_mask.ps1` on DC | AccessMask bitwise decode for 4662 |
+| `ad_guids.json` | Default only | `generate_ad_guids.ps1` on DC | Schema + extended rights GUIDs for 4662 |
+| `domain_objects.json` | Default only | `generate_domain_objects.ps1` on DC | Domain object `%{guid}` resolution for 4662 |
 
-**Generate lookup files on DC1:**
+**Generate on DC1** (run once, re-run when AD schema changes):
 
 ```powershell
 New-Item -ItemType Directory -Name "lookups" -Force
 
-.\generate_msobjs_lookup.ps1      # produces lookups\msobjs_lookup.json
-.\generate_lookup.ps1             # produces lookups\soc_event_lookup.json
-.\generate_ds_access_mask.ps1     # produces lookups\ds_access_mask.json
-.\generate_ad_guids.ps1           # produces lookups\ad_guids.json
+.\generate_msobjs_lookup.ps1       # lookups\msobjs_lookup.json
+.\generate_lookup.ps1              # lookups\soc_event_lookup.json
+.\generate_ds_access_mask.ps1      # lookups\ds_access_mask.json
+.\generate_ad_guids.ps1            # lookups\ad_guids.json
+.\generate_domain_objects.ps1      # lookups\domain_objects.json
 ```
 
 Copy the `lookups\` folder to the machine where you run the pipeline.
@@ -92,14 +97,20 @@ find . -name '*.evtx' -exec evtx_dump -o jsonl -t 2 {} \; > combined.json
 **Step 2 — Run the pipeline**
 
 ```bash
-# Minimal — required lookups only
-python main.py raw_Security.json out.ndjson
+# Any logs — universal profile (default), skips env-specific lookups
+python main.py raw.json out.ndjson
 
-# With fallback EventID lookup
-python main.py raw_Security.json out.ndjson --lookup lookups/soc_event_lookup.json
+# Any logs + fallback EventID descriptions
+python main.py raw.json out.ndjson --lookup lookups/soc_event_lookup.json
 
-# Full — all lookups
-python main.py raw_Security.json out.ndjson --lookup lookups/soc_event_lookup.json --verbose
+# Lab / domain logs — loads all lookups including AD GUIDs and domain objects
+python main.py raw.json out.ndjson --profile default
+
+# Lab logs + fallback — full enrichment
+python main.py raw.json out.ndjson --profile default --lookup lookups/soc_event_lookup.json
+
+# Debug mode — shows detailed logging
+python main.py raw.json out.ndjson --verbose
 ```
 
 **Step 3 — Ingest into ADX**
@@ -150,22 +161,46 @@ Use the ADX **Get data** wizard to ingest `out.ndjson`.
 | `AdditionalFields` | `null` if all packed fields are absent |
 | `EventData` | Nested object — query with `todynamic()` in KQL |
 
-**Fields packed into `AdditionalFields`:** `Provider_Guid`, `Version`, `Level`, `Task`, `Opcode`, `Keywords`, `EventRecordID`, `Execution_ProcessID`, `Execution_ThreadID`, `Correlation`, `Security`
+**Fields packed into `AdditionalFields`:**
+
+`Provider_Guid`, `Version`, `Level`, `Task`, `Opcode`, `Keywords`, `EventRecordID`, `Execution_ProcessID`, `Execution_ThreadID`, `Correlation`, `Security`
+
+---
+
+## Enrichment reference
+
+| Event ID | Field | Enrichment |
+|----------|-------|------------|
+| All | `EventDescription` | Two-tier lookup — master → fallback |
+| All | `EventData.*` | `%%` code resolution via `msobjs_lookup.json` |
+| 4624, 4625, 4648 | `EventData.LogonType` | Numeric → friendly name e.g. `3 (Network)` |
+| 4662 | `EventData.AccessMask` | Bitwise decode e.g. `0x100 (Control Access)` |
+| 4662 | `EventData.Properties` | `{guid}` → `{guid} (Name)` |
+| 4662 | `EventData.ObjectType` | `{guid}` → `{guid} (Name)` |
+| 4662 | `EventData.ObjectName` | `%{guid}` → `%{guid} (Name)` |
 
 ---
 
 ## CLI reference
 
+Running `python main.py` with no arguments shows the full help menu.
+
 ```
 python main.py <input> <output> [options]
 
+Profiles:
+  (none)              Universal — skips ad_guids + domain_objects (default)
+  --profile default   Full — loads all lookups including environment-specific
+
 Options:
-  --lookup        <file>   Fallback EventID lookup (soc_event_lookup.json)
-  --master        <file>   Override master lookup path
-  --msobjs        <file>   Override msobjs lookup path
-  --logon-types   <file>   Override logon types lookup path
-  --ds-access-mask <file>  Override DS access mask lookup path
-  --ad-guids      <file>   Override AD GUIDs lookup path
-  --warnings      <file>   Warnings log path (default: warnings.log)
-  --verbose                Enable debug logging
+  --profile         <name>   universal or default (default: universal)
+  --lookup          <file>   Fallback EventID lookup
+  --master          <file>   Override master lookup path
+  --msobjs          <file>   Override msobjs lookup path
+  --logon-types     <file>   Override logon types lookup path
+  --ds-access-mask  <file>   Override DS access mask lookup path
+  --ad-guids        <file>   Override AD GUIDs lookup path (default profile only)
+  --domain-objects  <file>   Override domain objects lookup path (default profile only)
+  --verbose                  Enable debug logging
+  -h, --help                 Show help
 ```
