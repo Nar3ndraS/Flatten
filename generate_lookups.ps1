@@ -1,5 +1,5 @@
 # =============================================================================
-# generate_lookups.ps1 — Consolidated lookup generation for evtx-pipeline
+# generate_lookups.ps1 -- Consolidated lookup generation for evtx-pipeline
 #
 # Replaces:
 #   generate_all_message_lookup.ps1   -> Get-MsobjsLookup        (Core)
@@ -10,7 +10,7 @@
 #   generate_lab_objects.ps1          -> folded into Get-DomainObjectsLookup
 #
 # Output layout:
-#   core\msobjs_lookup.json                       (Core — never runs by default)
+#   core\msobjs_lookup.json                       (Core - never runs by default)
 #   lookups\universal\universal_ds_access_mask.json
 #   lookups\universal\universal_soc_event_lookup.json
 #   lookups\environment\environment_ad_guids.json
@@ -73,7 +73,7 @@ $UniversalDir   = Join-Path $LookupsDir "universal"
 $EnvironmentDir = Join-Path $LookupsDir "environment"
 
 
-# ── Shared helpers ─────────────────────────────────────────────────────────
+# -- Shared helpers ---------------------------------------------------------
 
 function Write-LookupJson {
     param(
@@ -89,7 +89,7 @@ function Write-LookupJson {
 
 
 # =============================================================================
-# CORE — never runs unless -Core is explicitly passed
+# CORE - never runs unless -Core is explicitly passed
 # =============================================================================
 
 function Get-MsobjsLookup {
@@ -176,13 +176,13 @@ namespace NativeMsg
 
 
 # =============================================================================
-# UNIVERSAL — same on every machine, independent of any specific AD forest
+# UNIVERSAL - same on every machine, independent of any specific AD forest
 # =============================================================================
 
 function Get-DsAccessMaskLookup {
     <#
         Fixed ADS_RIGHTS_ENUM bit masks used to decode the 4662 AccessMask field.
-        Not extractable from a DLL — hardcoded per the Windows SDK.
+        Not extractable from a DLL - hardcoded per the Windows SDK.
         Writes: lookups\universal\universal_ds_access_mask.json
     #>
     Write-Host "  [Universal] Writing DS access mask constants..."
@@ -249,7 +249,7 @@ function Get-SocEventLookup {
 
 
 # =============================================================================
-# ENVIRONMENT — specific to this AD forest, regenerate whenever it changes
+# ENVIRONMENT - specific to this AD forest, regenerate whenever it changes
 # =============================================================================
 
 function Get-AdGuidsLookup {
@@ -258,7 +258,7 @@ function Get-AdGuidsLookup {
           - ClassSchema / AttributeSchema  (schema partition)
           - ExtendedRight                  (controlAccessRight objects)
           - PropertySet                    (attributeSecurityGUID-linked property
-                                             sets — controlAccessRight with
+                                             sets - controlAccessRight with
                                              validAccesses = 48)
         Writes: lookups\environment\environment_ad_guids.json
     #>
@@ -331,7 +331,7 @@ function Get-DomainObjectsLookup {
           - Custom OUs
           - Operationally relevant (non-system) containers
           - Every enabled computer + user account object
-            (lab-scale enumeration — see README; not recommended for
+            (lab-scale enumeration - see README; not recommended for
             production-size domains)
         Writes: lookups\environment\environment_domain_objects.json
     #>
@@ -434,7 +434,7 @@ function Get-DomainObjectsLookup {
     Write-Host "    User objects: $userCount"
 
     if (-not $IncludeDisabledAccounts) {
-        Write-Host "    (disabled accounts skipped — pass -IncludeDisabledAccounts to include them)"
+        Write-Host "    (disabled accounts skipped - pass -IncludeDisabledAccounts to include them)"
     }
 
     $results = $results | Sort-Object GUID -Unique

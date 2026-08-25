@@ -1,0 +1,78 @@
+﻿[
+    {
+        "Mask":  "0x1",
+        "Description":  "List Contents"
+    },
+    {
+        "Mask":  "0x2",
+        "Description":  "List Object"
+    },
+    {
+        "Mask":  "0x4",
+        "Description":  "Add/Delete Self"
+    },
+    {
+        "Mask":  "0x8",
+        "Description":  "Read Property"
+    },
+    {
+        "Mask":  "0x10",
+        "Description":  "Write Property"
+    },
+    {
+        "Mask":  "0x20",
+        "Description":  "Delete Tree"
+    },
+    {
+        "Mask":  "0x40",
+        "Description":  "List Object"
+    },
+    {
+        "Mask":  "0x100",
+        "Description":  "Control Access"
+    },
+    {
+        "Mask":  "0x10000",
+        "Description":  "Delete"
+    },
+    {
+        "Mask":  "0x20000",
+        "Description":  "Read Control"
+    },
+    {
+        "Mask":  "0x40000",
+        "Description":  "Write DACL"
+    },
+    {
+        "Mask":  "0x80000",
+        "Description":  "Write Owner"
+    },
+    {
+        "Mask":  "0x100000",
+        "Description":  "Synchronize"
+    },
+    {
+        "Mask":  "0x1000000",
+        "Description":  "Access System Security"
+    },
+    {
+        "Mask":  "0x2000000",
+        "Description":  "Maximum Allowed"
+    },
+    {
+        "Mask":  "0x10000000",
+        "Description":  "Generic All"
+    },
+    {
+        "Mask":  "0x20000000",
+        "Description":  "Generic Execute"
+    },
+    {
+        "Mask":  "0x40000000",
+        "Description":  "Generic Write"
+    },
+    {
+        "Mask":  "0x80000000",
+        "Description":  "Generic Read"
+    }
+]

@@ -1,0 +1,77 @@
+﻿[
+    {
+        "GUID":  "{177c5007-8498-46f8-baf8-c471a5ee765c}",
+        "Name":  "CN=Users",
+        "Type":  "Container"
+    },
+    {
+        "GUID":  "{3540cca0-2dd2-4148-a957-6975ec07c431}",
+        "Name":  "c137",
+        "Type":  "UserObject"
+    },
+    {
+        "GUID":  "{41770456-0d3b-449a-97f8-3a4bbdc57484}",
+        "Name":  "Administrator",
+        "Type":  "UserObject"
+    },
+    {
+        "GUID":  "{45fc426c-7143-4946-94c3-6fd974859699}",
+        "Name":  "TESTBOX1$",
+        "Type":  "ComputerObject"
+    },
+    {
+        "GUID":  "{5206e6c4-9bf2-48cf-96fd-aa43f219c623}",
+        "Name":  "blues.lab",
+        "Type":  "DomainRoot"
+    },
+    {
+        "GUID":  "{5cd24088-df76-4850-ae2e-02b93e74a36c}",
+        "Name":  "CN=Managed Service Accounts",
+        "Type":  "Container"
+    },
+    {
+        "GUID":  "{64f467f3-e999-4572-a858-8f9ed6b882ba}",
+        "Name":  "OU=Domain Controllers",
+        "Type":  "OU"
+    },
+    {
+        "GUID":  "{6fbd561b-240e-442f-a391-ecb099958328}",
+        "Name":  "OU=Audit-Test-Users",
+        "Type":  "OU"
+    },
+    {
+        "GUID":  "{730c37d4-cfba-4af1-bfb2-c8dac7c55f56}",
+        "Name":  "VIOLET$",
+        "Type":  "UserObject"
+    },
+    {
+        "GUID":  "{8d36571d-bd86-4f08-8908-ba6e45980e5c}",
+        "Name":  "ns",
+        "Type":  "UserObject"
+    },
+    {
+        "GUID":  "{8d3946d3-e812-4612-b432-0d5cb70599bc}",
+        "Name":  "CN=Computers",
+        "Type":  "Container"
+    },
+    {
+        "GUID":  "{a96fa806-9955-49c7-b4d9-867417f9f4cf}",
+        "Name":  "CN=Builtin",
+        "Type":  "Container"
+    },
+    {
+        "GUID":  "{b45ccf83-a102-4b3a-b77d-09d617e85bf4}",
+        "Name":  "SRV1$",
+        "Type":  "ComputerObject"
+    },
+    {
+        "GUID":  "{bce49324-41e8-446e-bcdd-0282a3f0b501}",
+        "Name":  "CN=Keys",
+        "Type":  "Container"
+    },
+    {
+        "GUID":  "{d7c67890-5766-4bf4-8155-5f24899f30a0}",
+        "Name":  "DC1$",
+        "Type":  "ComputerObject"
+    }
+]
