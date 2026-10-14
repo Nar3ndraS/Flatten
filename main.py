@@ -4,16 +4,18 @@ main.py — CLI entrypoint for evtx_pipeline.
 Usage:
     python main.py <input> <output> [options]
 
-Profiles:
-    (none)            Universal — skips environment-specific lookups (ad_guids, domain_objects)
-    --profile default Full — loads all lookups including environment-specific ones
+Lookup loading is detection-based, not flag-based:
+    core/       — mandatory. Must contain master_security_auditing_index_micosoft.json
+                  and msobjs_lookup.json, or the pipeline refuses to start.
+    lookups/    — optional. universal/ and environment/ subfolders are scanned;
+                  whatever files are present get loaded, whatever's absent is
+                  silently skipped. No profile flag needed — presence of a file
+                  is the on/off switch for that enrichment step.
 
 Options:
-    --profile  <name>    Lookup profile: default (full) or universal (default: universal)
-    --master   <file>    Master EventID lookup (default: lookups/master_security_auditing_index_micosoft.json)
-    --msobjs   <file>    msobjs %% code lookup (default: lookups/msobjs_lookup.json)
-    --lookup   <file>    Optional fallback EventID lookup (e.g. soc_event_lookup.json)
-    --verbose            Enable debug logging
+    --core-dir     <dir>   Directory with the two mandatory lookups (default: ./core)
+    --lookups-dir  <dir>   Directory with universal/ and environment/ subfolders (default: ./lookups)
+    --verbose               Enable debug logging
 
 Pipeline flow:
     parser.load()             → raw evtx_dump NDJSON → flat dicts
@@ -82,18 +84,12 @@ def print_help() -> None:
     _sep()
 
     examples = [
-        ("universal (default)",
+        ("basic run",
          "python main.py raw.json out.ndjson",
-         "Any logs — skips environment-specific lookups"),
-        ("with fallback lookup",
-         "python main.py raw.json out.ndjson --lookup lookups/soc_event_lookup.json",
-         "Adds fallback EventID descriptions"),
-        ("lab / domain logs",
-         "python main.py raw.json out.ndjson --profile default",
-         "Loads all lookups including AD GUIDs and domain objects"),
-        ("lab + fallback",
-         "python main.py raw.json out.ndjson --profile default --lookup lookups/soc_event_lookup.json",
-         "Full enrichment for blues.lab logs"),
+         "Loads whatever's present in ./core and ./lookups"),
+        ("custom lookup dirs",
+         "python main.py raw.json out.ndjson --core-dir /path/to/core --lookups-dir /path/to/lookups",
+         "Point at a different environment's generated lookups"),
         ("debug mode",
          "python main.py raw.json out.ndjson --verbose",
          "Shows detailed logging output"),
@@ -105,16 +101,21 @@ def print_help() -> None:
         print(f"    {_c(C.DIM, desc)}")
         print()
 
-    # Profiles
-    print(f"  {_c(C.CYAN + C.BOLD, 'profiles')}")
+    # Lookup layout
+    print(f"  {_c(C.CYAN + C.BOLD, 'lookup layout (detection-based — no profile flag)')}")
     _sep()
-    print(f"  {_c(C.CYAN, 'universal')}  {_c(C.DIM, '(default)')}")
-    print(f"  {_c(C.DIM, '  Skips ad_guids.json and domain_objects.json.')}")
-    print(f"  {_c(C.DIM, '  Use for any logs — CTF, DFIR, unknown environments.')}")
+    print(f"  {_c(C.WHITE, 'core/')}  {_c(C.DIM, '(mandatory — pipeline refuses to start without both)')}")
+    print(f"  {_c(C.DIM, '  master_security_auditing_index_micosoft.json')}")
+    print(f"  {_c(C.DIM, '  msobjs_lookup.json')}")
     print()
-    print(f"  {_c(C.YELLOW, 'default')}")
-    print(f"  {_c(C.DIM, '  Loads all lookups including environment-specific ones.')}")
-    print(f"  {_c(C.DIM, '  Use for blues.lab domain logs.')}")
+    print(f"  {_c(C.WHITE, 'lookups/universal/')}  {_c(C.DIM, '(optional — loaded if present)')}")
+    print(f"  {_c(C.DIM, '  universal_ds_access_mask.json')}")
+    print(f"  {_c(C.DIM, '  universal_soc_event_lookup.json')}")
+    print(f"  {_c(C.DIM, '  universal_logon_types.json')}")
+    print()
+    print(f"  {_c(C.WHITE, 'lookups/environment/')}  {_c(C.DIM, '(optional — loaded if present, forest-specific)')}")
+    print(f"  {_c(C.DIM, '  environment_ad_guids.json')}")
+    print(f"  {_c(C.DIM, '  environment_domain_objects.json')}")
     print()
 
     # Options
@@ -122,14 +123,8 @@ def print_help() -> None:
     _sep()
 
     opts = [
-        ("--profile <name>",      "universal or default  (default: universal)"),
-        ("--lookup  <file>",      "fallback EventID lookup  e.g. soc_event_lookup.json"),
-        ("--master  <file>",      "override master lookup path"),
-        ("--msobjs  <file>",      "override msobjs lookup path"),
-        ("--logon-types <file>",  "override logon types lookup path"),
-        ("--ds-access-mask <f>",  "override DS access mask lookup path"),
-        ("--ad-guids <file>",     "override AD GUIDs lookup path  (default profile only)"),
-        ("--domain-objects <f>",  "override domain objects lookup path  (default profile only)"),
+        ("--core-dir <dir>",     "directory with the mandatory lookups  (default: ./core)"),
+        ("--lookups-dir <dir>",  "directory with universal/ + environment/  (default: ./lookups)"),
         ("--verbose",             "enable debug logging"),
         ("-h, --help",            "show this help"),
     ]
@@ -149,16 +144,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     p.add_argument("input",  nargs="?", help="Raw evtx_dump NDJSON input file")
     p.add_argument("output", nargs="?", help="Enriched NDJSON output file")
 
-    p.add_argument("--profile",        choices=["universal", "default"], default="universal")
-    p.add_argument("--master",         default=None)
-    p.add_argument("--msobjs",         default=None)
-    p.add_argument("--lookup",         default=None)
-    p.add_argument("--logon-types",    default=None)
-    p.add_argument("--domain-objects", default=None)
-    p.add_argument("--ad-guids",       default=None)
-    p.add_argument("--ds-access-mask", default=None)
-    p.add_argument("--verbose",        action="store_true")
-    p.add_argument("-h", "--help",     action="store_true")
+    p.add_argument("--core-dir",    default="core")
+    p.add_argument("--lookups-dir", default="lookups")
+    p.add_argument("--verbose",     action="store_true")
+    p.add_argument("-h", "--help",  action="store_true")
     return p
 
 
@@ -183,46 +172,39 @@ def setup_logging(collector: WarningCollector, verbose: bool) -> None:
         root.addHandler(console)
 
 
-def resolve_lookup_paths(args: argparse.Namespace):
-    script_dir = Path(__file__).parent
-    lookups_dir = script_dir / "lookups"
+def _detect_active_lookups(core_dir: Path, lookups_dir: Path) -> dict[str, bool]:
+    """
+    Report which optional lookup files are present, for the header display.
+    Detection logic mirrors enricher.Lookups.__init__ exactly.
+    """
+    universal_dir = lookups_dir / "universal"
+    environment_dir = lookups_dir / "environment"
 
-    master_path         = Path(args.master) if args.master else lookups_dir / "master_security_auditing_index_micosoft.json"
-    msobjs_path         = Path(args.msobjs) if args.msobjs else lookups_dir / "msobjs_lookup.json"
-    fallback_path       = Path(args.lookup) if args.lookup else None
-    logon_types_path    = Path(args.logon_types) if args.logon_types else lookups_dir / "logon_types.json"
-    ds_access_mask_path = Path(args.ds_access_mask) if args.ds_access_mask else lookups_dir / "ds_access_mask.json"
-
-    if args.profile == "default":
-        ad_guids_path       = Path(args.ad_guids) if args.ad_guids else lookups_dir / "ad_guids.json"
-        domain_objects_path = Path(args.domain_objects) if args.domain_objects else lookups_dir / "domain_objects.json"
-    else:
-        ad_guids_path       = None
-        domain_objects_path = None
-
-    return master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path, ad_guids_path, domain_objects_path
+    return {
+        "universal_ds_access_mask.json":   (universal_dir / "universal_ds_access_mask.json").exists(),
+        "universal_soc_event_lookup.json": (universal_dir / "universal_soc_event_lookup.json").exists(),
+        "universal_logon_types.json":      (universal_dir / "universal_logon_types.json").exists(),
+        "environment_ad_guids.json":       (environment_dir / "environment_ad_guids.json").exists(),
+        "environment_domain_objects.json": (environment_dir / "environment_domain_objects.json").exists(),
+    }
 
 
-def print_header(args, master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path, ad_guids_path, domain_objects_path) -> None:
+def print_header(args, core_dir: Path, lookups_dir: Path, active: dict[str, bool]) -> None:
     print()
     print(f"  {_c(C.CYAN + C.BOLD, 'evtx-pipeline')}{_c(C.DIM, '  ·  python edition')}")
-    _sep()
-
-    profile_color = C.YELLOW if args.profile == "default" else C.CYAN
-    _row("profile", _c(profile_color, args.profile))
     _sep()
 
     _row("input",  args.input)
     _row("output", args.output)
     _sep()
 
-    _row("master",         master_path.name)
-    _row("msobjs",         msobjs_path.name)
-    _row("fallback",       fallback_path.name if fallback_path else _c(C.DIM, "none"))
-    _row("logon types",    logon_types_path.name if logon_types_path else _c(C.DIM, "none"))
-    _row("ds access mask", ds_access_mask_path.name if ds_access_mask_path else _c(C.DIM, "none"))
-    _row("ad guids",       ad_guids_path.name if ad_guids_path else _c(C.DIM, "none"))
-    _row("domain objects", domain_objects_path.name if domain_objects_path else _c(C.DIM, "none"))
+    _row("core dir",    str(core_dir))
+    _row("lookups dir", str(lookups_dir))
+    _sep()
+
+    for filename, is_active in active.items():
+        status = _c(C.GREEN, "active") if is_active else _c(C.DIM, "not found — skipped")
+        _row(filename, status)
     print()
 
 
@@ -233,7 +215,6 @@ def print_summary(args, written: int, pipeline_warnings: PipelineWarnings) -> No
     _sep()
     _row("records written", _c(C.GREEN, f"{written:,}"))
     _row("output",          args.output)
-    _row("profile",         args.profile)
 
     if not pipeline_warnings.is_empty:
         _row("warnings", _c(C.RED, f"{pipeline_warnings.total_count} — see warnings.log"))
@@ -259,21 +240,18 @@ def main() -> None:
 
     pw = PipelineWarnings()
 
-    master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path, ad_guids_path, domain_objects_path = resolve_lookup_paths(args)
+    core_dir    = Path(args.core_dir)
+    lookups_dir = Path(args.lookups_dir)
 
-    print_header(args, master_path, msobjs_path, fallback_path, logon_types_path, ds_access_mask_path, ad_guids_path, domain_objects_path)
+    active = _detect_active_lookups(core_dir, lookups_dir)
+    print_header(args, core_dir, lookups_dir, active)
 
     # ── Load lookups ──────────────────────────────────────────────────────────
     _stage(0, "Loading lookups...")
     try:
         lookups = enricher_mod.Lookups(
-            master_path=master_path,
-            msobjs_path=msobjs_path,
-            fallback_path=fallback_path,
-            logon_types_path=logon_types_path,
-            ds_access_mask_path=ds_access_mask_path,
-            ad_guids_path=ad_guids_path,
-            domain_objects_path=domain_objects_path,
+            core_dir=core_dir,
+            lookups_dir=lookups_dir,
         )
     except FileNotFoundError as exc:
         print(f"\n  {_c(C.RED, '✗')} {_c(C.WHITE, str(exc))}\n")

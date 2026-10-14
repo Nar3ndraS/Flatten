@@ -1,0 +1,2222 @@
+﻿[
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4608,
+        "Description":  "Windows is starting up."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4609,
+        "Description":  "Windows is shutting down."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4610,
+        "Description":  "An authentication package has been loaded by the Local Security Authority."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4611,
+        "Description":  "A trusted logon process has been registered with the Local Security Authority."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4612,
+        "Description":  "Internal resources allocated for the queuing of audit messages have been exhausted, leading to the loss of some audits."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4614,
+        "Description":  "A notification package has been loaded by the Security Account Manager."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4615,
+        "Description":  "Invalid use of LPC port."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4616,
+        "Description":  "The system time was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4618,
+        "Description":  "A monitored security event pattern has occurred."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4621,
+        "Description":  "Administrator recovered system from CrashOnAuditFail."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4622,
+        "Description":  "A security package has been loaded by the Local Security Authority."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4624,
+        "Description":  "An account was successfully logged on."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4625,
+        "Description":  "An account failed to log on."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4626,
+        "Description":  "User / Device claims information."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4627,
+        "Description":  "Group membership information."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4634,
+        "Description":  "An account was logged off."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4647,
+        "Description":  "User initiated logoff:\r\n\r\nSubject:\r\n\tSecurity ID:\t\t%1\r\n\tAccount Name:\t\t%2\r\n\tAccount Domain:\t\t%3\r\n\tLogon ID:\t\t%4\r\n\r\nThis event is generated when a logoff is initiated."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4648,
+        "Description":  "A logon was attempted using explicit credentials."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4649,
+        "Description":  "A replay attack was detected."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4650,
+        "Description":  "An IPsec main mode security association was established."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4651,
+        "Description":  "An IPsec main mode security association was established."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4652,
+        "Description":  "An IPsec main mode negotiation failed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4653,
+        "Description":  "An IPsec main mode negotiation failed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4654,
+        "Description":  "An IPsec quick mode negotiation failed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4655,
+        "Description":  "An IPsec main mode security association ended."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4656,
+        "Description":  "A handle to an object was requested."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4657,
+        "Description":  "A registry value was modified."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4658,
+        "Description":  "The handle to an object was closed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4659,
+        "Description":  "A handle to an object was requested with intent to delete."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4660,
+        "Description":  "An object was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4661,
+        "Description":  "A handle to an object was requested."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4662,
+        "Description":  "An operation was performed on an object."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4663,
+        "Description":  "An attempt was made to access an object."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4664,
+        "Description":  "An attempt was made to create a hard link."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4665,
+        "Description":  "An attempt was made to create an application client context."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4666,
+        "Description":  "An application attempted an operation:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4667,
+        "Description":  "An application client context was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4668,
+        "Description":  "An application was initialized."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4670,
+        "Description":  "Permissions on an object were changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4671,
+        "Description":  "An application attempted to access a blocked ordinal through the TBS."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4672,
+        "Description":  "Special privileges assigned to new logon."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4673,
+        "Description":  "A privileged service was called."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4674,
+        "Description":  "An operation was attempted on a privileged object."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4675,
+        "Description":  "SIDs were filtered."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4688,
+        "Description":  "A new process has been created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4689,
+        "Description":  "A process has exited."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4690,
+        "Description":  "An attempt was made to duplicate a handle to an object."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4691,
+        "Description":  "Indirect access to an object was requested."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4692,
+        "Description":  "Backup of data protection master key was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4693,
+        "Description":  "Recovery of data protection master key was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4694,
+        "Description":  "Protection of auditable protected data was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4695,
+        "Description":  "Unprotection of auditable protected data was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4696,
+        "Description":  "A primary token was assigned to process."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4697,
+        "Description":  "A service was installed in the system."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4698,
+        "Description":  "A scheduled task was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4699,
+        "Description":  "A scheduled task was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4700,
+        "Description":  "A scheduled task was enabled."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4701,
+        "Description":  "A scheduled task was disabled."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4702,
+        "Description":  "A scheduled task was updated."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4703,
+        "Description":  "A token right was adjusted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4704,
+        "Description":  "A user right was assigned."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4705,
+        "Description":  "A user right was removed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4706,
+        "Description":  "A new trust was created to a domain."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4707,
+        "Description":  "A trust to a domain was removed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4709,
+        "Description":  "The IPsec Policy Agent service was started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4710,
+        "Description":  "The IPsec Policy Agent service was disabled."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4712,
+        "Description":  "IPsec Policy Agent encountered a potentially serious failure."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4713,
+        "Description":  "Kerberos policy was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4714,
+        "Description":  "Data Recovery Agent group policy for Encrypting File System (EFS) has changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4715,
+        "Description":  "The audit policy (SACL) on an object was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4716,
+        "Description":  "Trusted domain information was modified."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4717,
+        "Description":  "System security access was granted to an account."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4718,
+        "Description":  "System security access was removed from an account."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4719,
+        "Description":  "System audit policy was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4720,
+        "Description":  "A user account was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4722,
+        "Description":  "A user account was enabled."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4723,
+        "Description":  "An attempt was made to change an account\u0027s password."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4724,
+        "Description":  "An attempt was made to reset an account\u0027s password."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4725,
+        "Description":  "A user account was disabled."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4726,
+        "Description":  "A user account was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4727,
+        "Description":  "A security-enabled global group was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4728,
+        "Description":  "A member was added to a security-enabled global group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4729,
+        "Description":  "A member was removed from a security-enabled global group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4730,
+        "Description":  "A security-enabled global group was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4731,
+        "Description":  "A security-enabled local group was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4732,
+        "Description":  "A member was added to a security-enabled local group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4733,
+        "Description":  "A member was removed from a security-enabled local group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4734,
+        "Description":  "A security-enabled local group was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4735,
+        "Description":  "A security-enabled local group was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4737,
+        "Description":  "A security-enabled global group was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4738,
+        "Description":  "A user account was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4739,
+        "Description":  "Domain Policy was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4740,
+        "Description":  "A user account was locked out."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4741,
+        "Description":  "A computer account was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4742,
+        "Description":  "A computer account was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4743,
+        "Description":  "A computer account was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4744,
+        "Description":  "A security-disabled local group was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4745,
+        "Description":  "A security-disabled local group was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4746,
+        "Description":  "A member was added to a security-disabled local group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4747,
+        "Description":  "A member was removed from a security-disabled local group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4748,
+        "Description":  "A security-disabled local group was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4749,
+        "Description":  "A security-disabled global group was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4750,
+        "Description":  "A security-disabled global group was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4751,
+        "Description":  "A member was added to a security-disabled global group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4752,
+        "Description":  "A member was removed from a security-disabled global group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4753,
+        "Description":  "A security-disabled global group was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4754,
+        "Description":  "A security-enabled universal group was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4755,
+        "Description":  "A security-enabled universal group was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4756,
+        "Description":  "A member was added to a security-enabled universal group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4757,
+        "Description":  "A member was removed from a security-enabled universal group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4758,
+        "Description":  "A security-enabled universal group was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4759,
+        "Description":  "A security-disabled universal group was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4760,
+        "Description":  "A security-disabled universal group was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4761,
+        "Description":  "A member was added to a security-disabled universal group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4762,
+        "Description":  "A member was removed from a security-disabled universal group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4763,
+        "Description":  "A security-disabled universal group was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4764,
+        "Description":  "A group’s type was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4765,
+        "Description":  "SID History was added to an account."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4766,
+        "Description":  "An attempt to add SID History to an account failed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4767,
+        "Description":  "A user account was unlocked."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4768,
+        "Description":  "A Kerberos authentication ticket (TGT) was requested."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4769,
+        "Description":  "A Kerberos service ticket was requested."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4770,
+        "Description":  "A Kerberos service ticket was renewed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4771,
+        "Description":  "Kerberos pre-authentication failed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4772,
+        "Description":  "A Kerberos authentication ticket request failed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4773,
+        "Description":  "A Kerberos service ticket request failed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4774,
+        "Description":  "An account was mapped for logon."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4775,
+        "Description":  "An account could not be mapped for logon."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4776,
+        "Description":  "The computer attempted to validate the credentials for an account."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4777,
+        "Description":  "The domain controller failed to validate the credentials for an account."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4778,
+        "Description":  "A session was reconnected to a Window Station."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4779,
+        "Description":  "A session was disconnected from a Window Station."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4780,
+        "Description":  "The ACL was set on accounts which are members of administrators groups."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4781,
+        "Description":  "The name of an account was changed:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4782,
+        "Description":  "The password hash an account was accessed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4783,
+        "Description":  "A basic application group was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4784,
+        "Description":  "A basic application group was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4785,
+        "Description":  "A member was added to a basic application group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4786,
+        "Description":  "A member was removed from a basic application group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4787,
+        "Description":  "A non-member was added to a basic application group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4788,
+        "Description":  "A non-member was removed from a basic application group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4789,
+        "Description":  "A basic application group was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4790,
+        "Description":  "An LDAP query group was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4791,
+        "Description":  "A basic application group was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4792,
+        "Description":  "An LDAP query group was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4793,
+        "Description":  "The Password Policy Checking API was called."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4794,
+        "Description":  "An attempt was made to set the Directory Services Restore Mode\r\nadministrator password."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4797,
+        "Description":  "An attempt was made to query the existence of a blank password for an account."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4798,
+        "Description":  "A user\u0027s local group membership was enumerated."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4799,
+        "Description":  "A security-enabled local group membership was enumerated."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4800,
+        "Description":  "The workstation was locked."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4801,
+        "Description":  "The workstation was unlocked."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4802,
+        "Description":  "The screen saver was invoked."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4803,
+        "Description":  "The screen saver was dismissed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4816,
+        "Description":  "RPC detected an integrity violation while decrypting an incoming message."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4817,
+        "Description":  "Auditing settings on object were changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4818,
+        "Description":  "Proposed Central Access Policy does not grant the same access permissions as the current Central Access Policy."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4819,
+        "Description":  "Central Access Policies on the machine have been changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4820,
+        "Description":  "A Kerberos Ticket-granting-ticket (TGT) was denied because the device does not meet the access control restrictions."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4821,
+        "Description":  "A Kerberos service ticket was denied because the user, device, or both does not meet the access control restrictions."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4822,
+        "Description":  "NTLM authentication failed because the account was a member of the Protected User group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4823,
+        "Description":  "NTLM authentication failed because access control restrictions are required."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4824,
+        "Description":  "Kerberos preauthentication by using DES or RC4 failed because the account was a member of the Protected User group."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4825,
+        "Description":  "A user was denied the access to Remote Desktop."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4826,
+        "Description":  "Boot Configuration Data loaded."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4830,
+        "Description":  "SID History was removed from an account."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4864,
+        "Description":  "A namespace collision was detected."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4865,
+        "Description":  "A trusted forest information entry was added."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4866,
+        "Description":  "A trusted forest information entry was removed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4867,
+        "Description":  "A trusted forest information entry was modified."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4868,
+        "Description":  "The certificate manager denied a pending certificate request."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4869,
+        "Description":  "Certificate Services received a resubmitted certificate request."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4870,
+        "Description":  "Certificate Services revoked a certificate."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4871,
+        "Description":  "Certificate Services received a request to publish the certificate revocation list (CRL)."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4872,
+        "Description":  "Certificate Services published the certificate revocation list (CRL)."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4873,
+        "Description":  "A certificate request extension changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4874,
+        "Description":  "One or more certificate request attributes changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4875,
+        "Description":  "Certificate Services received a request to shut down."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4876,
+        "Description":  "Certificate Services backup started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4877,
+        "Description":  "Certificate Services backup completed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4878,
+        "Description":  "Certificate Services restore started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4879,
+        "Description":  "Certificate Services restore completed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4880,
+        "Description":  "Certificate Services started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4881,
+        "Description":  "Certificate Services stopped."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4882,
+        "Description":  "The security permissions for Certificate Services changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4883,
+        "Description":  "Certificate Services retrieved an archived key."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4884,
+        "Description":  "Certificate Services imported a certificate into its database."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4885,
+        "Description":  "The audit filter for Certificate Services changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4886,
+        "Description":  "Certificate Services received a certificate request."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4887,
+        "Description":  "Certificate Services approved a certificate request and issued a certificate."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4888,
+        "Description":  "Certificate Services denied a certificate request."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4889,
+        "Description":  "Certificate Services set the status of a certificate request to pending."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4890,
+        "Description":  "The certificate manager settings for Certificate Services changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4891,
+        "Description":  "A configuration entry changed in Certificate Services."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4892,
+        "Description":  "A property of Certificate Services changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4893,
+        "Description":  "Certificate Services archived a key."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4894,
+        "Description":  "Certificate Services imported and archived a key."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4895,
+        "Description":  "Certificate Services published the CA certificate to Active Directory Domain Services."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4896,
+        "Description":  "One or more rows have been deleted from the certificate database."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4897,
+        "Description":  "Role separation enabled:\t%1"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4898,
+        "Description":  "Certificate Services loaded a template."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4899,
+        "Description":  "A Certificate Services template was updated."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4900,
+        "Description":  "Certificate Services template security was updated."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4902,
+        "Description":  "The Per-user audit policy table was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4904,
+        "Description":  "An attempt was made to register a security event source."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4905,
+        "Description":  "An attempt was made to unregister a security event source."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4906,
+        "Description":  "The CrashOnAuditFail value has changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4907,
+        "Description":  "Auditing settings on object were changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4908,
+        "Description":  "Special Groups Logon table modified."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4909,
+        "Description":  "The local policy settings for the TBS were changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4910,
+        "Description":  "The group policy settings for the TBS were changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4911,
+        "Description":  "Resource attributes of the object were changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4912,
+        "Description":  "Per User Audit Policy was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4913,
+        "Description":  "Central Access Policy on the object was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4928,
+        "Description":  "An Active Directory replica source naming context was established."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4929,
+        "Description":  "An Active Directory replica source naming context was removed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4930,
+        "Description":  "An Active Directory replica source naming context was modified."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4931,
+        "Description":  "An Active Directory replica destination naming context was modified."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4932,
+        "Description":  "Synchronization of a replica of an Active Directory naming context has begun."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4933,
+        "Description":  "Synchronization of a replica of an Active Directory naming context has ended."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4934,
+        "Description":  "Attributes of an Active Directory object were replicated."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4935,
+        "Description":  "Replication failure begins."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4936,
+        "Description":  "Replication failure ends."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4937,
+        "Description":  "A lingering object was removed from a replica."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4944,
+        "Description":  "The following policy was active when the Windows Firewall started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4945,
+        "Description":  "A rule was listed when the Windows Firewall started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4946,
+        "Description":  "A change was made to the Windows Firewall exception list."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4947,
+        "Description":  "A change was made to the Windows Firewall exception list."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4948,
+        "Description":  "A change was made to the Windows Firewall exception list."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4949,
+        "Description":  "Windows Firewall settings were restored to the default values."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4950,
+        "Description":  "A Windows Firewall setting was changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4951,
+        "Description":  "Windows Firewall ignored a rule because its major version number is not recognized."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4952,
+        "Description":  "Windows Firewall ignored parts of a rule because its minor version number is not recognized."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4953,
+        "Description":  "Windows Firewall ignored a rule because it could not be parsed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4954,
+        "Description":  "Group Policy settings for Windows Firewall were changed, and the new settings were applied."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4956,
+        "Description":  "Windows Firewall changed the active profile."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4957,
+        "Description":  "Windows Firewall did not apply the following rule:\r\n\r\nRule Information:\r\n\tID:\t%1\r\n\tName:\t%2\r\n\r\nError Information:\r\n\tReason:\t%3 resolved to an empty set."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4958,
+        "Description":  "Windows Firewall did not apply the following rule because the rule referred to items not configured on this computer:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4960,
+        "Description":  "IPsec dropped an inbound packet that failed an integrity check."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4961,
+        "Description":  "IPsec dropped an inbound packet that failed a replay check."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4962,
+        "Description":  "IPsec dropped an inbound packet that failed a replay check."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4963,
+        "Description":  "IPsec dropped an inbound clear text packet that should have been secured."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4964,
+        "Description":  "Special groups have been assigned to a new logon."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4965,
+        "Description":  "IPsec received a packet from a remote computer with an incorrect Security Parameter Index (SPI)."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4976,
+        "Description":  "During main mode negotiation, IPsec received an invalid negotiation packet."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4977,
+        "Description":  "During quick mode negotiation, IPsec received an invalid negotiation packet."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4978,
+        "Description":  "During extended mode negotiation, IPsec received an invalid negotiation packet."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4979,
+        "Description":  "IPsec main mode and extended mode security associations were established."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4980,
+        "Description":  "IPsec main mode and extended mode security associations were established."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4981,
+        "Description":  "IPsec main mode and extended mode security associations were established."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4982,
+        "Description":  "IPsec main mode and extended mode security associations were established."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4983,
+        "Description":  "An IPsec extended mode negotiation failed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4984,
+        "Description":  "An IPsec extended mode negotiation failed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  4985,
+        "Description":  "The state of a transaction has changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5024,
+        "Description":  "The Windows Firewall service started successfully."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5025,
+        "Description":  "The Windows Firewall service was stopped."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5027,
+        "Description":  "The Windows Firewall service was unable to retrieve the security policy from the local storage."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5028,
+        "Description":  "Windows Firewall was unable to parse the new security policy."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5029,
+        "Description":  "The Windows Firewall service failed to initialize the driver."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5030,
+        "Description":  "The Windows Firewall service failed to start."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5031,
+        "Description":  "Windows Firewall blocked an application from accepting incoming connections on the network."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5032,
+        "Description":  "Windows Firewall was unable to notify the user that it blocked an application from accepting incoming connections on the network."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5033,
+        "Description":  "The Windows Firewall Driver started successfully."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5034,
+        "Description":  "The Windows Firewall Driver was stopped."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5035,
+        "Description":  "The Windows Firewall Driver failed to start."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5037,
+        "Description":  "The Windows Firewall Driver detected a critical runtime error, terminating."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5038,
+        "Description":  "Code integrity determined that the image hash of a file is not valid."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5039,
+        "Description":  "A registry key was virtualized."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5040,
+        "Description":  "A change was made to IPsec settings."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5041,
+        "Description":  "A change was made to IPsec settings."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5042,
+        "Description":  "A change was made to IPsec settings."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5043,
+        "Description":  "A change was made to IPsec settings."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5044,
+        "Description":  "A change was made to IPsec settings."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5045,
+        "Description":  "A change was made to IPsec settings."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5046,
+        "Description":  "A change was made to IPsec settings."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5047,
+        "Description":  "A change was made to IPsec settings."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5048,
+        "Description":  "A change was made to IPsec settings."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5049,
+        "Description":  "An IPsec security association was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5050,
+        "Description":  "An attempt to programmatically disable Windows Firewall using a call to INetFwProfile."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5051,
+        "Description":  "A file was virtualized."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5056,
+        "Description":  "A cryptographic self test was performed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5057,
+        "Description":  "A cryptographic primitive operation failed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5058,
+        "Description":  "Key file operation."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5059,
+        "Description":  "Key migration operation."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5060,
+        "Description":  "Verification operation failed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5061,
+        "Description":  "Cryptographic operation."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5062,
+        "Description":  "A kernel-mode cryptographic self test was performed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5063,
+        "Description":  "A cryptographic provider operation was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5064,
+        "Description":  "A cryptographic context operation was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5065,
+        "Description":  "A cryptographic context modification was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5066,
+        "Description":  "A cryptographic function operation was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5067,
+        "Description":  "A cryptographic function modification was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5068,
+        "Description":  "A cryptographic function provider operation was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5069,
+        "Description":  "A cryptographic function property operation was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5070,
+        "Description":  "A cryptographic function property modification was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5071,
+        "Description":  "Key access denied by Microsoft key distribution service."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5120,
+        "Description":  "OCSP Responder Service Started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5121,
+        "Description":  "OCSP Responder Service Stopped."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5122,
+        "Description":  "A Configuration entry changed in the OCSP Responder Service."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5123,
+        "Description":  "A configuration entry changed in the OCSP Responder Service."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5124,
+        "Description":  "A security setting was updated on OCSP Responder Service."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5125,
+        "Description":  "A request was submitted to OCSP Responder Service."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5126,
+        "Description":  "Signing Certificate was automatically updated by the OCSP Responder Service."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5127,
+        "Description":  "The OCSP Revocation Provider successfully updated the revocation information."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5136,
+        "Description":  "A directory service object was modified."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5137,
+        "Description":  "A directory service object was created."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5138,
+        "Description":  "A directory service object was undeleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5139,
+        "Description":  "A directory service object was moved."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5140,
+        "Description":  "A network share object was accessed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5141,
+        "Description":  "A directory service object was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5142,
+        "Description":  "A network share object was added."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5143,
+        "Description":  "A network share object was modified."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5144,
+        "Description":  "A network share object was deleted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5145,
+        "Description":  "A network share object was checked to see whether client can be granted desired access."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5146,
+        "Description":  "The Windows Filtering Platform has blocked a packet."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5147,
+        "Description":  "A more restrictive Windows Filtering Platform filter has blocked a packet."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5148,
+        "Description":  "The Windows Filtering Platform has detected a DoS attack and entered a defensive mode; packets associated with this attack will be discarded."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5149,
+        "Description":  "The DoS attack has subsided and normal processing is being resumed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5150,
+        "Description":  "The Windows Filtering Platform has blocked a packet."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5151,
+        "Description":  "A more restrictive Windows Filtering Platform filter has blocked a packet."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5152,
+        "Description":  "The Windows Filtering Platform has blocked a packet."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5153,
+        "Description":  "A more restrictive Windows Filtering Platform filter has blocked a packet."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5154,
+        "Description":  "The Windows Filtering Platform has permitted an application or service to listen on a port for incoming connections."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5155,
+        "Description":  "The Windows Filtering Platform has blocked an application or service from listening on a port for incoming connections."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5156,
+        "Description":  "The Windows Filtering Platform has permitted a connection."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5157,
+        "Description":  "The Windows Filtering Platform has blocked a connection."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5158,
+        "Description":  "The Windows Filtering Platform has permitted a bind to a local port."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5159,
+        "Description":  "The Windows Filtering Platform has blocked a bind to a local port."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5168,
+        "Description":  "Spn check for SMB/SMB2 fails."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5169,
+        "Description":  "A directory service object was modified."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5170,
+        "Description":  "A directory service object was modified during a background cleanup task."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5376,
+        "Description":  "Credential Manager credentials were backed up."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5377,
+        "Description":  "Credential Manager credentials were restored from a backup."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5378,
+        "Description":  "The requested credentials delegation was disallowed by policy."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5379,
+        "Description":  "Credential Manager credentials were read."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5380,
+        "Description":  "Vault Find Credential."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5381,
+        "Description":  "Vault credentials were read."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5382,
+        "Description":  "Vault credentials were read."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5440,
+        "Description":  "The following callout was present when the Windows Filtering Platform Base Filtering Engine started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5441,
+        "Description":  "The following filter was present when the Windows Filtering Platform Base Filtering Engine started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5442,
+        "Description":  "The following provider was present when the Windows Filtering Platform Base Filtering Engine started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5443,
+        "Description":  "The following provider context was present when the Windows Filtering Platform Base Filtering Engine started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5444,
+        "Description":  "The following sub-layer was present when the Windows Filtering Platform Base Filtering Engine started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5446,
+        "Description":  "A Windows Filtering Platform callout has been changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5447,
+        "Description":  "A Windows Filtering Platform filter has been changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5448,
+        "Description":  "A Windows Filtering Platform provider has been changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5449,
+        "Description":  "A Windows Filtering Platform provider context has been changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5450,
+        "Description":  "A Windows Filtering Platform sub-layer has been changed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5451,
+        "Description":  "An IPsec quick mode security association was established."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5452,
+        "Description":  "An IPsec quick mode security association ended."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5453,
+        "Description":  "An IPsec negotiation with a remote computer failed because the IKE and AuthIP IPsec Keying Modules (IKEEXT) service is not started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5456,
+        "Description":  "IPsec Policy Agent applied Active Directory storage IPsec policy on the computer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5457,
+        "Description":  "IPsec Policy Agent failed to apply Active Directory storage IPsec policy on the computer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5458,
+        "Description":  "IPsec Policy Agent applied locally cached copy of Active Directory storage IPsec policy on the computer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5459,
+        "Description":  "IPsec Policy Agent failed to apply locally cached copy of Active Directory storage IPsec policy on the computer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5460,
+        "Description":  "IPsec Policy Agent applied local registry storage IPsec policy on the computer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5461,
+        "Description":  "IPsec Policy Agent failed to apply local registry storage IPsec policy on the computer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5462,
+        "Description":  "IPsec Policy Agent failed to apply some rules of the active IPsec policy on the computer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5463,
+        "Description":  "IPsec Policy Agent polled for changes to the active IPsec policy and detected no changes."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5464,
+        "Description":  "IPsec Policy Agent polled for changes to the active IPsec policy, detected changes, and applied them."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5465,
+        "Description":  "IPsec Policy Agent received a control for forced reloading of IPsec policy and processed the control successfully."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5466,
+        "Description":  "IPsec Policy Agent polled for changes to the Active Directory IPsec policy, determined that Active Directory cannot be reached, and will use the cached copy of the Active Directory IPsec policy instead."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5467,
+        "Description":  "IPsec Policy Agent polled for changes to the Active Directory IPsec policy, determined that Active Directory can be reached, and found no changes to the policy."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5468,
+        "Description":  "IPsec Policy Agent polled for changes to the Active Directory IPsec policy, determined that Active Directory can be reached, found changes to the policy, and applied those changes."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5471,
+        "Description":  "IPsec Policy Agent loaded local storage IPsec policy on the computer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5472,
+        "Description":  "IPsec Policy Agent failed to load local storage IPsec policy on the computer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5473,
+        "Description":  "IPsec Policy Agent loaded directory storage IPsec policy on the computer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5474,
+        "Description":  "IPsec Policy Agent failed to load directory storage IPsec policy on the computer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5477,
+        "Description":  "IPsec Policy Agent failed to add quick mode filter."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5478,
+        "Description":  "The IPsec Policy Agent service was started."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5479,
+        "Description":  "The IPsec Policy Agent service was stopped."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5480,
+        "Description":  "IPsec Policy Agent failed to get the complete list of network interfaces on the computer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5483,
+        "Description":  "The IPsec Policy Agent service failed to initialize its RPC server."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5484,
+        "Description":  "The IPsec Policy Agent service experienced a critical failure and has shut down."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5485,
+        "Description":  "IPsec Policy Agent failed to process some IPsec filters on a plug-and-play event for network interfaces."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5632,
+        "Description":  "A request was made to authenticate to a wireless network."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5633,
+        "Description":  "A request was made to authenticate to a wired network."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5712,
+        "Description":  "A Remote Procedure Call (RPC) was attempted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5888,
+        "Description":  "An object in the COM+ Catalog was modified."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5889,
+        "Description":  "An object was deleted from the COM+ Catalog."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  5890,
+        "Description":  "An object was added to the COM+ Catalog."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6144,
+        "Description":  "Security policy in the group policy objects has been applied successfully."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6145,
+        "Description":  "One or more errors occured while processing security policy in the group policy objects."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6272,
+        "Description":  "Network Policy Server granted access to a user."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6273,
+        "Description":  "Network Policy Server denied access to a user."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6274,
+        "Description":  "Network Policy Server discarded the request for a user."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6275,
+        "Description":  "Network Policy Server discarded the accounting request for a user."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6276,
+        "Description":  "Network Policy Server quarantined a user."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6277,
+        "Description":  "Network Policy Server granted access to a user but put it on probation because the host did not meet the defined health policy."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6278,
+        "Description":  "Network Policy Server granted full access to a user because the host met the defined health policy."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6279,
+        "Description":  "Network Policy Server locked the user account due to repeated failed authentication attempts."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6280,
+        "Description":  "Network Policy Server unlocked the user account."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6281,
+        "Description":  "Code Integrity determined that the page hashes of an image file are not valid."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6400,
+        "Description":  "BranchCache: Received an incorrectly formatted response while discovering availability of content."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6401,
+        "Description":  "BranchCache: Received invalid data from a peer."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6402,
+        "Description":  "BranchCache: The message to the hosted cache offering it data is incorrectly formatted."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6403,
+        "Description":  "BranchCache: The hosted cache sent an incorrectly formatted response to the client\u0027s message to offer it data."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6404,
+        "Description":  "BranchCache: Hosted cache could not be authenticated using the provisioned SSL certificate."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6405,
+        "Description":  "BranchCache: %2 instance(s) of event id %1 occurred."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6406,
+        "Description":  "%1 registered to Windows Firewall to control filtering for the following: \r\n%2."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6408,
+        "Description":  "Registered product %1 failed and Windows Firewall is now controlling the filtering for %2."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6409,
+        "Description":  "BranchCache: A service connection point object could not be parsed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6410,
+        "Description":  "Code integrity determined that a file does not meet the security requirements to load into a process."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6416,
+        "Description":  "A new external device was recognized by the system."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6417,
+        "Description":  "The FIPS mode crypto selftests succeeded."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6418,
+        "Description":  "The FIPS mode crypto selftests failed."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6419,
+        "Description":  "A request was made to disable a device."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6420,
+        "Description":  "A device was disabled."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6421,
+        "Description":  "A request was made to enable a device."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6422,
+        "Description":  "A device was enabled."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6423,
+        "Description":  "The installation of this device is forbidden by system policy."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6424,
+        "Description":  "The installation of this device was allowed, after having previously been forbidden by policy."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  6425,
+        "Description":  "A network client used a legacy RPC method to modify authentication information on a trusted domain object."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Security-Auditing",
+        "EventID":  8191,
+        "Description":  "Highest System-Defined Audit Message Value."
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  1,
+        "Description":  "Process Create:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  2,
+        "Description":  "File creation time changed:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  3,
+        "Description":  "Network connection detected:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  4,
+        "Description":  "Sysmon service state changed:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  5,
+        "Description":  "Process terminated:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  6,
+        "Description":  "Driver loaded:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  7,
+        "Description":  "Image loaded:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  8,
+        "Description":  "CreateRemoteThread detected:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  9,
+        "Description":  "RawAccessRead detected:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  10,
+        "Description":  "Process accessed:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  11,
+        "Description":  "File created:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  12,
+        "Description":  "Registry object added or deleted:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  13,
+        "Description":  "Registry value set:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  14,
+        "Description":  "Registry object renamed:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  15,
+        "Description":  "File stream created:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  16,
+        "Description":  "Sysmon config state changed:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  17,
+        "Description":  "Pipe Created:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  18,
+        "Description":  "Pipe Connected:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  19,
+        "Description":  "WmiEventFilter activity detected:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  20,
+        "Description":  "WmiEventConsumer activity detected:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  21,
+        "Description":  "WmiEventConsumerToFilter activity detected:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  22,
+        "Description":  "Dns query:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  23,
+        "Description":  "File Delete archived:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  24,
+        "Description":  "Clipboard changed:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  25,
+        "Description":  "Process Tampering:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  26,
+        "Description":  "File Delete logged:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  27,
+        "Description":  "File Block Executable:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  28,
+        "Description":  "File Block Shredding:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  29,
+        "Description":  "File Executable Detected:"
+    },
+    {
+        "Provider":  "Microsoft-Windows-Sysmon",
+        "EventID":  255,
+        "Description":  "Error report:"
+    }
+]

@@ -13,8 +13,8 @@ Converts raw Windows Event Log exports into clean, enriched NDJSON for ingestion
    - `%%` placeholder codes via `msobjs_lookup.json`
    - `LogonType` for Events 4624, 4625, 4648
    - `AccessMask` for Event 4662 (bitwise decode)
-   - `Properties`, `ObjectType` GUIDs for Event 4662 (schema objects + extended rights)
-   - `ObjectName` `%{guid}` references for Event 4662 (domain objects + OUs + containers)
+   - `Properties`, `ObjectType` GUIDs for Event 4662 (schema objects + extended rights + property sets)
+   - `ObjectName` `%{guid}` references for Event 4662 (domain objects + OUs + containers + account instances)
 4. Outputs one JSON object per line — ready for ADX ingest
 
 ---
@@ -38,48 +38,70 @@ evtx-pipeline/
 ├── enricher.py
 ├── writer.py
 ├── warnings_collector.py
-├── generate_lookup.ps1
-├── generate_msobjs_lookup.ps1
-├── generate_ds_access_mask.ps1
-├── generate_ad_guids.ps1
-├── generate_domain_objects.ps1
-└── lookups/
-    ├── master_security_auditing_index_micosoft.json   ← required
-    ├── msobjs_lookup.json                             ← required
-    ├── logon_types.json                               ← included
-    ├── soc_event_lookup.json                          ← optional
-    ├── ds_access_mask.json                            ← generate on DC
-    ├── ad_guids.json                                  ← generate on DC
-    └── domain_objects.json                            ← generate on DC
+├── generate_lookups.ps1        ← single consolidated generator script
+├── core/                        ← MANDATORY, outside lookups/
+│   ├── master_security_auditing_index_micosoft.json   (static)
+│   └── msobjs_lookup.json                              (generated with -Core)
+└── lookups/                     ← optional — presence of a file turns its enrichment on
+    ├── universal/                (same on any machine, not forest-specific)
+    │   ├── universal_ds_access_mask.json          (generated)
+    │   ├── universal_soc_event_lookup.json        (generated)
+    │   └── universal_logon_types.json             (static)
+    └── environment/               (specific to the AD forest you generated it in)
+        ├── environment_ad_guids.json              (generated)
+        └── environment_domain_objects.json        (generated)
 ```
 
 ---
 
-## Lookup files
+## Lookup loading model
 
-| File | Profile | Source | Purpose |
-|------|---------|--------|---------|
-| `master_security_auditing_index_micosoft.json` | Both | Included | EventID → description (Microsoft source) |
-| `msobjs_lookup.json` | Both | `generate_msobjs_lookup.ps1` on DC | `%%` code resolution |
-| `logon_types.json` | Both | Included | LogonType decode for 4624, 4625, 4648 |
-| `soc_event_lookup.json` | Both | `generate_lookup.ps1` on DC | Fallback EventID descriptions |
-| `ds_access_mask.json` | Both | `generate_ds_access_mask.ps1` on DC | AccessMask bitwise decode for 4662 |
-| `ad_guids.json` | Default only | `generate_ad_guids.ps1` on DC | Schema + extended rights GUIDs for 4662 |
-| `domain_objects.json` | Default only | `generate_domain_objects.ps1` on DC | Domain object `%{guid}` resolution for 4662 |
+Lookup loading is **detection-based**, not flag-based. There is no `--profile` flag anymore.
 
-**Generate on DC1** (run once, re-run when AD schema changes):
+- `core/` is mandatory. If either file is missing, the pipeline refuses to start.
+- Everything under `lookups/universal/` and `lookups/environment/` is optional. If a file is present, that enrichment step runs. If it's absent, that step is silently skipped. No flags needed — you control behavior purely by what you put in the folder.
+
+| File | Tier | Purpose |
+|------|------|---------|
+| `core/master_security_auditing_index_micosoft.json` | Core (mandatory) | EventID → description (Microsoft source) |
+| `core/msobjs_lookup.json` | Core (mandatory) | `%%` code resolution |
+| `lookups/universal/universal_ds_access_mask.json` | Universal (optional) | AccessMask bitwise decode for 4662 |
+| `lookups/universal/universal_soc_event_lookup.json` | Universal (optional) | Fallback EventID descriptions |
+| `lookups/universal/universal_logon_types.json` | Universal (optional) | LogonType decode for 4624, 4625, 4648 |
+| `lookups/environment/environment_ad_guids.json` | Environment (optional) | Schema + extended rights + property set GUIDs for 4662 |
+| `lookups/environment/environment_domain_objects.json` | Environment (optional) | OUs, containers, and computer/user instance GUID resolution for 4662 |
+
+---
+
+## Generating lookups
+
+One script, three function groups (Core / Universal / Environment), each independently skippable by name.
 
 ```powershell
-New-Item -ItemType Directory -Name "lookups" -Force
+# Default: Universal + Environment. Core never runs unless explicitly requested.
+.\generate_lookups.ps1
 
-.\generate_msobjs_lookup.ps1       # lookups\msobjs_lookup.json
-.\generate_lookup.ps1              # lookups\soc_event_lookup.json
-.\generate_ds_access_mask.ps1      # lookups\ds_access_mask.json
-.\generate_ad_guids.ps1            # lookups\ad_guids.json
-.\generate_domain_objects.ps1      # lookups\domain_objects.json
+# Core only — slow DLL walk, run rarely, only when you need msobjs regenerated
+.\generate_lookups.ps1 -Core
+
+# Universal only, skip one function
+.\generate_lookups.ps1 -Universal -SkipUniversal SocEventLookup
+
+# Environment only, skip domain objects (e.g. you only need schema GUIDs today)
+.\generate_lookups.ps1 -Environment -SkipEnvironment DomainObjects
+
+# Everything, including Core
+.\generate_lookups.ps1 -Core -Universal -Environment
+
+# Environment, including disabled accounts in the instance GUID pull
+.\generate_lookups.ps1 -Environment -IncludeDisabledAccounts
 ```
 
-Copy the `lookups\` folder to the machine where you run the pipeline.
+Every run **overwrites** its target file(s) — nothing is merged with previous output. Re-run whenever the environment changes.
+
+`generate_lookups.ps1` replaces the five previous scripts (`generate_all_message_lookup.ps1`, `generate_ds_access_mask.ps1`, `generate_lookup.ps1`, `generate_ad_guids.ps1`, `generate_domain_objects.ps1`, `generate_lab_objects.ps1`) — those are removed. Instance-level user/computer GUIDs, previously written to a separate `lab_objects.json`, are now folded directly into `environment_domain_objects.json`.
+
+Copy the `core/` and `lookups/` folders to the machine where you run the pipeline.
 
 ---
 
@@ -98,17 +120,11 @@ find . -name '*.evtx' -exec evtx_dump -o jsonl -t 2 {} \; > combined.json
 **Step 2 — Run the pipeline**
 
 ```bash
-# Any logs — universal profile (default), skips env-specific lookups
+# Loads whatever's present in ./core and ./lookups
 python main.py raw.json out.ndjson
 
-# Any logs + fallback EventID descriptions
-python main.py raw.json out.ndjson --lookup lookups/soc_event_lookup.json
-
-# Lab / domain logs — loads all lookups including AD GUIDs and domain objects
-python main.py raw.json out.ndjson --profile default
-
-# Lab logs + fallback — full enrichment
-python main.py raw.json out.ndjson --profile default --lookup lookups/soc_event_lookup.json
+# Point at a different environment's generated lookups
+python main.py raw.json out.ndjson --core-dir /path/to/core --lookups-dir /path/to/lookups
 
 # Debug mode — shows detailed logging
 python main.py raw.json out.ndjson --verbose
@@ -189,19 +205,9 @@ Running `python main.py` with no arguments shows the full help menu.
 ```
 python main.py <input> <output> [options]
 
-Profiles:
-  (none)              Universal — skips ad_guids + domain_objects (default)
-  --profile default   Full — loads all lookups including environment-specific
-
 Options:
-  --profile         <name>   universal or default (default: universal)
-  --lookup          <file>   Fallback EventID lookup
-  --master          <file>   Override master lookup path
-  --msobjs          <file>   Override msobjs lookup path
-  --logon-types     <file>   Override logon types lookup path
-  --ds-access-mask  <file>   Override DS access mask lookup path
-  --ad-guids        <file>   Override AD GUIDs lookup path (default profile only)
-  --domain-objects  <file>   Override domain objects lookup path (default profile only)
-  --verbose                  Enable debug logging
-  -h, --help                 Show help
+  --core-dir     <dir>   Directory with the mandatory lookups (default: ./core)
+  --lookups-dir  <dir>   Directory with universal/ + environment/ subfolders (default: ./lookups)
+  --verbose               Enable debug logging
+  -h, --help              Show help
 ```

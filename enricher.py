@@ -1,11 +1,32 @@
 """
 enricher.py — Lookup-based enrichment of normalized records.
 
+Lookup layout (see README):
+
+    core/                                          ← mandatory, outside lookups/
+        master_security_auditing_index_micosoft.json
+        msobjs_lookup.json
+
+    lookups/
+        universal/
+            universal_ds_access_mask.json          ← optional
+            universal_soc_event_lookup.json        ← optional
+            universal_logon_types.json             ← optional
+        environment/
+            environment_ad_guids.json              ← optional
+            environment_domain_objects.json        ← optional
+
+Detection rule: if a file is present it is loaded and that enrichment step
+is active. If a file is absent, that enrichment step is silently skipped —
+no flags needed. The two files under core/ are the only exception: both
+are required, and Lookups.__init__ raises FileNotFoundError if either is
+missing.
+
 Responsibilities:
 - Load all JSON lookup files once at startup into memory
 - Resolve EventDescription via two-tier lookup:
-    Priority 1: master_security_auditing_index_micosoft.json (required)
-    Priority 2: soc_event_lookup.json via --lookup flag (optional fallback)
+    Priority 1: core/master_security_auditing_index_micosoft.json (required)
+    Priority 2: lookups/universal/universal_soc_event_lookup.json (optional fallback)
     Lookup key: Provider_Name + "_" + str(EventID)
     Result: None if not found in either
 - Resolve %% placeholder codes in EventData string values:
@@ -16,15 +37,15 @@ Responsibilities:
     LogonType in EventIDs {4624, 4625, 4648}
         Strategy: Option B — keep original value, append description
         Example: "3" → "3 (Network)"
-        Values not in logon_types.json → left as-is
+        Values not in universal_logon_types.json → left as-is
     AccessMask in EventID 4662 only
         Strategy: decode all set bits, join with |
         Example: "0x41000" → "0x41000 (Write DACL | Delete)"
-        Hex values not in ds_access_mask.json bits → left as-is
+        Hex values not in universal_ds_access_mask.json bits → left as-is
     GUIDs in EventID 4662 only (Properties, ObjectType fields)
         Strategy: Option B — keep GUID, append name
         Example: "{1131f6aa...}" → "{1131f6aa...} (DS-Replication-Get-Changes)"
-        GUIDs not in ad_guids.json → left as-is
+        GUIDs not in environment_ad_guids.json → left as-is
         Multiple GUIDs in one field each resolved independently
 - Preserve \r\n\t delimiters in EventData — do NOT strip
 
@@ -54,79 +75,109 @@ _GUID_RE = re.compile(r'\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-
 # Compiled pattern to find %{guid} format — used in ObjectName field
 _PCT_GUID_RE = re.compile(r'%\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\}')
 
+# ── Fixed filenames within each tier ────────────────────────────────────────
+# core/ — both mandatory
+CORE_MASTER_FILENAME  = "master_security_auditing_index_micosoft.json"
+CORE_MSOBJS_FILENAME  = "msobjs_lookup.json"
+
+# lookups/universal/ — all optional, loaded if present
+UNIVERSAL_DS_ACCESS_MASK_FILENAME = "universal_ds_access_mask.json"
+UNIVERSAL_SOC_EVENT_FILENAME      = "universal_soc_event_lookup.json"
+UNIVERSAL_LOGON_TYPES_FILENAME    = "universal_logon_types.json"
+
+# lookups/environment/ — all optional, loaded if present
+ENVIRONMENT_AD_GUIDS_FILENAME       = "environment_ad_guids.json"
+ENVIRONMENT_DOMAIN_OBJECTS_FILENAME = "environment_domain_objects.json"
+
 
 class Lookups:
     """
     Container for all loaded lookup tables.
     Loaded once at startup, reused for every record.
+
+    Detection-based: pass the core/ and lookups/ directories, and each known
+    filename is loaded if present. core/ files are mandatory — missing
+    either raises FileNotFoundError. Everything under lookups/universal and
+    lookups/environment is optional and silently skipped if absent.
     """
 
     def __init__(
         self,
-        master_path: str | Path,
-        msobjs_path: str | Path,
-        fallback_path: str | Path | None = None,
-        logon_types_path: str | Path | None = None,
-        ds_access_mask_path: str | Path | None = None,
-        ad_guids_path: str | Path | None = None,
-        domain_objects_path: str | Path | None = None,
+        core_dir: str | Path,
+        lookups_dir: str | Path,
     ):
         """
-        Load all lookup files from disk.
-
         Args:
-            master_path:          Path to master_security_auditing_index_micosoft.json (required)
-            msobjs_path:          Path to msobjs_lookup.json (required)
-            fallback_path:        Path to soc_event_lookup.json (optional)
-            logon_types_path:     Path to logon_types.json (optional)
-            ds_access_mask_path:  Path to ds_access_mask.json (optional)
-            ad_guids_path:        Path to ad_guids.json (optional)
-            domain_objects_path:  Path to domain_objects.json (optional)
+            core_dir:    Directory containing the two mandatory lookup files.
+            lookups_dir: Directory containing universal/ and environment/
+                         subdirectories of optional lookup files.
 
         Raises:
-            FileNotFoundError: If a required lookup file is missing.
+            FileNotFoundError: If a required core/ lookup file is missing.
         """
+        core_dir = Path(core_dir)
+        lookups_dir = Path(lookups_dir)
+        universal_dir = lookups_dir / "universal"
+        environment_dir = lookups_dir / "environment"
+
         self.event_map: dict[str, str] = {}           # "Provider_EventID" → description
         self.msobjs_map: dict[str, str] = {}          # "%%XXXX" → "%%XXXX (Description)"
         self.logon_types_map: dict[str, str] = {}     # "3" → "3 (Network)"
         self.ds_access_mask_map: dict[int, str] = {}  # 0x40000 → "Write DACL"
-        self.ad_guids_map: dict[str, str] = {}        # "{guid}" → "{guid} (Name)"
+        self.ad_guids_map: dict[str, str] = {}        # "{guid}" → "Name"
 
         # Unresolved value tracking — populated during enrichment, read by main.py
         self.unresolved_pct_codes: set[str] = set()   # %%XXXX codes not in msobjs_map
-        self.unresolved_guids: set[str] = set()       # {guid} not in ad_guids_map
-        self.unresolved_pct_guids: set[str] = set()   # %{guid} not in ad_guids_map
+        self.unresolved_guids: set[str] = set()        # {guid} not in ad_guids_map
+        self.unresolved_pct_guids: set[str] = set()    # %{guid} not in ad_guids_map
 
-        self._load_event_map(master_path, fallback_path)
+        # ── core/ — mandatory ────────────────────────────────────────────────
+        master_path = core_dir / CORE_MASTER_FILENAME
+        msobjs_path = core_dir / CORE_MSOBJS_FILENAME
+
+        if not master_path.exists():
+            raise FileNotFoundError(
+                f"Required core lookup not found: {master_path}\n"
+                f"core/{CORE_MASTER_FILENAME} is mandatory and must be present."
+            )
+        if not msobjs_path.exists():
+            raise FileNotFoundError(
+                f"Required core lookup not found: {msobjs_path}\n"
+                f"core/{CORE_MSOBJS_FILENAME} is mandatory — generate it with "
+                f"'generate_lookups.ps1 -Core'."
+            )
+
+        # ── lookups/universal/ — optional fallback for EventDescription ──────
+        fallback_path = universal_dir / UNIVERSAL_SOC_EVENT_FILENAME
+        self._load_event_map(master_path, fallback_path if fallback_path.exists() else None)
+
         self._load_msobjs_map(msobjs_path)
-        self._load_logon_types_map(logon_types_path)
-        self._load_ds_access_mask_map(ds_access_mask_path)
-        self._load_ad_guids_map(ad_guids_path)
-        self._load_domain_objects_map(domain_objects_path)
+
+        self._load_logon_types_map(universal_dir / UNIVERSAL_LOGON_TYPES_FILENAME)
+        self._load_ds_access_mask_map(universal_dir / UNIVERSAL_DS_ACCESS_MASK_FILENAME)
+
+        # ── lookups/environment/ — optional, forest-specific ─────────────────
+        self._load_ad_guids_map(environment_dir / ENVIRONMENT_AD_GUIDS_FILENAME)
+        self._load_domain_objects_map(environment_dir / ENVIRONMENT_DOMAIN_OBJECTS_FILENAME)
 
     def _load_event_map(
         self,
-        master_path: str | Path,
-        fallback_path: str | Path | None,
+        master_path: Path,
+        fallback_path: Path | None,
     ) -> None:
         """
         Build event description map.
         Fallback loaded first, master overlays it (master takes priority).
         """
-        master_path = Path(master_path)
-        if not master_path.exists():
-            raise FileNotFoundError(f"Master lookup not found: {master_path}")
-
-        # Load fallback first (lower priority)
+        # Load fallback first (lower priority) — only if it exists
         if fallback_path is not None:
-            fallback_path = Path(fallback_path)
-            if not fallback_path.exists():
-                raise FileNotFoundError(f"Fallback lookup not found: {fallback_path}")
             fallback_data = json.loads(fallback_path.read_text(encoding="utf-8-sig"))
             for entry in fallback_data:
                 key = f"{entry['Provider']}_{entry['EventID']}"
                 self.event_map[key] = entry["Description"]
             logger.info("Loaded %d entries from fallback lookup: %s", len(fallback_data), fallback_path)
+        else:
+            logger.debug("No universal_soc_event_lookup.json found — fallback EventDescription lookup disabled.")
 
         # Load master (overlays fallback — master wins on conflict)
         master_data = json.loads(master_path.read_text(encoding="utf-8-sig"))
@@ -137,15 +188,11 @@ class Lookups:
             master_count += 1
         logger.info("Loaded %d entries from master lookup: %s", master_count, master_path)
 
-    def _load_msobjs_map(self, msobjs_path: str | Path) -> None:
+    def _load_msobjs_map(self, msobjs_path: Path) -> None:
         """
         Build msobjs %% code map.
         Maps "%%XXXX" → "%%XXXX (Description)" for Option B replacement.
         """
-        msobjs_path = Path(msobjs_path)
-        if not msobjs_path.exists():
-            raise FileNotFoundError(f"msobjs lookup not found: {msobjs_path}")
-
         msobjs_data = json.loads(msobjs_path.read_text(encoding="utf-8-sig"))
         for entry in msobjs_data:
             code = entry["Code"]                            # e.g. "%%1538"
@@ -154,20 +201,14 @@ class Lookups:
 
         logger.info("Loaded %d entries from msobjs lookup: %s", len(msobjs_data), msobjs_path)
 
-    def _load_logon_types_map(self, logon_types_path: str | Path | None) -> None:
+    def _load_logon_types_map(self, logon_types_path: Path) -> None:
         """
         Build logon type map.
         Maps logon type string → "value (Description)" for Option B replacement.
-
-        If logon_types_path is None or file doesn't exist, skips silently —
-        logon type enrichment is optional.
+        Skips silently if the file isn't present — this enrichment is optional.
         """
-        if logon_types_path is None:
-            return
-
-        logon_types_path = Path(logon_types_path)
         if not logon_types_path.exists():
-            logger.warning("Logon types lookup not found — skipping: %s", logon_types_path)
+            logger.debug("No universal_logon_types.json found — LogonType enrichment disabled.")
             return
 
         data = json.loads(logon_types_path.read_text(encoding="utf-8-sig"))
@@ -178,20 +219,15 @@ class Lookups:
 
         logger.info("Loaded %d logon type entries from: %s", len(data), logon_types_path)
 
-    def _load_ds_access_mask_map(self, ds_access_mask_path: str | Path | None) -> None:
+    def _load_ds_access_mask_map(self, ds_access_mask_path: Path) -> None:
         """
         Build DS AccessMask bit map.
         Maps integer bit value → human-readable description.
         Keys stored as int for fast bitwise AND checks.
-
-        If ds_access_mask_path is None or file doesn't exist, skips silently.
+        Skips silently if the file isn't present — this enrichment is optional.
         """
-        if ds_access_mask_path is None:
-            return
-
-        ds_access_mask_path = Path(ds_access_mask_path)
         if not ds_access_mask_path.exists():
-            logger.warning("DS AccessMask lookup not found — skipping: %s", ds_access_mask_path)
+            logger.debug("No universal_ds_access_mask.json found — AccessMask enrichment disabled.")
             return
 
         data = json.loads(ds_access_mask_path.read_text(encoding="utf-8-sig"))
@@ -201,47 +237,37 @@ class Lookups:
 
         logger.info("Loaded %d DS AccessMask entries from: %s", len(data), ds_access_mask_path)
 
-    def _load_ad_guids_map(self, ad_guids_path: str | Path | None) -> None:
+    def _load_ad_guids_map(self, ad_guids_path: Path) -> None:
         """
         Build AD GUID map.
-        Maps "{guid}" → "{guid} (Name)" for Option B replacement.
-        GUID keys stored in lowercase for case-insensitive matching.
-
-        If ad_guids_path is None or file doesn't exist, skips silently.
+        Maps "{guid}" (lowercased) → "Name" for Option B replacement.
+        Skips silently if the file isn't present — this enrichment is optional.
         """
-        if ad_guids_path is None:
-            return
-
-        ad_guids_path = Path(ad_guids_path)
         if not ad_guids_path.exists():
-            logger.warning("AD GUIDs lookup not found — skipping: %s", ad_guids_path)
+            logger.debug("No environment_ad_guids.json found — schema GUID enrichment disabled.")
             return
 
         data = json.loads(ad_guids_path.read_text(encoding="utf-8-sig"))
         for entry in data:
             guid = entry["GUID"].lower()              # normalize to lowercase
             name = entry["Name"]
-            self.ad_guids_map[guid] = name            # "{guid}" → "Name"
+            self.ad_guids_map[guid] = name
 
         logger.info("Loaded %d AD GUID entries from: %s", len(data), ad_guids_path)
 
-    def _load_domain_objects_map(self, domain_objects_path: str | Path | None) -> None:
+    def _load_domain_objects_map(self, domain_objects_path: Path) -> None:
         """
-        Load domain_objects.json and merge into ad_guids_map.
+        Load environment_domain_objects.json and merge into ad_guids_map.
         Merging means both resolve_guids() and resolve_pct_guids() automatically
-        benefit from domain object GUIDs without any extra code.
+        benefit from domain object GUIDs (OUs, containers, and — since the
+        consolidated generator folds them in — user/computer instance GUIDs)
+        without any extra code.
 
-        domain_objects.json takes lower priority — ad_guids_map entries
-        already loaded from ad_guids.json are not overwritten.
-
-        If domain_objects_path is None or file doesn't exist, skips silently.
+        Lower priority than ad_guids.json — entries already present are not
+        overwritten. Skips silently if the file isn't present.
         """
-        if domain_objects_path is None:
-            return
-
-        domain_objects_path = Path(domain_objects_path)
         if not domain_objects_path.exists():
-            logger.warning("Domain objects lookup not found — skipping: %s", domain_objects_path)
+            logger.debug("No environment_domain_objects.json found — domain object GUID enrichment disabled.")
             return
 
         data = json.loads(domain_objects_path.read_text(encoding="utf-8-sig"))

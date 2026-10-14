@@ -1803,5 +1803,15 @@
         "Provider": "Microsoft-Windows-Sysmon",
         "EventID": 255,
         "Description": "Error"
+    },
+    {
+        "Provider": "Microsoft-Windows-PowerShell",
+        "EventID": 4103,
+        "Description": "Captures pipeline execution details, including commands, cmdlets, parameters, and outputs during a PowerShell session."
+    },
+    {
+        "Provider": "Microsoft-Windows-PowerShell",
+        "EventID": 4104,
+        "Description": "Captures the full raw content of script blocks as they are compiled and executed by PowerShell."
     }
 ]
