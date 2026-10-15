@@ -1,10 +1,10 @@
 """
-transform.py — Schema normalization, field ordering, and AdditionalFields packing.
+transform.py — Event filtering, schema normalization, field ordering, and AdditionalFields packing.
 
 Responsibilities:
+- Filter records per provider (see PROVIDER_EVENT_ALLOWLIST)
 - Rename TimeCreated_SystemTime → TimeGenerated
 - Pack low-value metadata fields into AdditionalFields
-- Pin forensic identity fields (Subject*, Target*) at top level always
 - Drop noise fields (xmlns already dropped in parser)
 - Enforce output field order:
     TimeGenerated → EventID → EventDescription → Computer →
@@ -28,38 +28,72 @@ ADDITIONAL_FIELDS = {
     "Opcode",
     "Keywords",
     "EventRecordID",
+    "EventID_Qualifiers",  # only present on System/Application style logs
     "Execution_ProcessID",
     "Execution_ThreadID",
-    "Correlation",   # sometimes populated — preserved but low-value at top level
-    "Security",      # preserve in case populated in non-Security logs
+    "Correlation",   # bare form, when the element has no attributes
+    "Security",      # bare form, when the element has no attributes
 }
 
-# Fields that are always pinned at top level regardless of schema reduction.
-# These are forensic identity fields critical for SOC queries.
-PINNED_FIELDS = {
-    "TimeGenerated",
-    "EventID",
-    "EventDescription",
-    "Computer",
-    "Provider_Name",
-    "Channel",
-}
+# Correlation and Security normally carry attributes, so after flattening they
+# appear as Correlation_ActivityID, Security_UserID, etc. Match them by prefix.
+ADDITIONAL_PREFIXES = ("Correlation_", "Security_")
 
 # Fields to drop entirely — no analytical value
 DROPPED_FIELDS = {
     "xmlns",
 }
 
+# Per-provider EventID allowlists. A provider listed here keeps ONLY the listed
+# EventIDs; every other record from that provider is dropped. Providers not
+# listed are passed through untouched.
+PROVIDER_EVENT_ALLOWLIST = {
+    "Microsoft-Windows-PowerShell": {4103, 4104},
+}
+
+
+def _is_additional(key: str) -> bool:
+    return key in ADDITIONAL_FIELDS or key.startswith(ADDITIONAL_PREFIXES)
+
+
+def filter_events(
+    records: Generator[dict, None, None],
+    stats: dict | None = None,
+) -> Generator[dict, None, None]:
+    """
+    Drop records whose provider has an allowlist and whose EventID is not on it.
+
+    Args:
+        records: Generator of flat dicts from parser.py
+        stats:   Optional dict; stats["filtered"] is incremented per dropped record.
+                 The count is only final once the generator is fully consumed.
+
+    Yields:
+        Records that passed the filter.
+    """
+    for record in records:
+        allowed = PROVIDER_EVENT_ALLOWLIST.get(record.get("Provider_Name"))
+        if allowed is not None:
+            try:
+                event_id = int(record.get("EventID"))
+            except (TypeError, ValueError):
+                event_id = None
+            if event_id not in allowed:
+                if stats is not None:
+                    stats["filtered"] = stats.get("filtered", 0) + 1
+                continue
+        yield record
+
 
 def _pack_additional_fields(record: dict) -> dict | None:
     """
-    Extract ADDITIONAL_FIELDS from the record and return them as a dict.
+    Extract additional (low-value metadata) fields from the record and return them as a dict.
     Returns None if none of the fields are present in the record.
     """
     packed = {
-        field: record[field]
-        for field in ADDITIONAL_FIELDS
-        if field in record and record[field] is not None
+        key: value
+        for key, value in record.items()
+        if value is not None and _is_additional(key)
     }
     return packed if packed else None
 
@@ -103,18 +137,16 @@ def normalize(record: dict) -> dict:
 
     # Remaining flat fields — exclude the four priority fields already written,
     # packed fields (going to AdditionalFields), dropped fields, and EventData.
-    # Provider_Name and Channel are in PINNED_FIELDS but should also appear in
-    # the middle section — only exclude the four fields already written above.
+    # Provider_Name and Channel stay in the middle section.
     already_written = {"TimeGenerated", "EventID", "EventDescription", "Computer"}
     exclude = (
         already_written
-        | ADDITIONAL_FIELDS
         | DROPPED_FIELDS
         | {"EventData", "TimeCreated_SystemTime"}
     )
 
     for key, value in record.items():
-        if key not in exclude:
+        if key not in exclude and not _is_additional(key):
             out[key] = value
 
     # AdditionalFields second to last

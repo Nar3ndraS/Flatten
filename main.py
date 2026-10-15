@@ -5,20 +5,22 @@ Usage:
     python main.py <input> <output> [options]
 
 Lookup loading is detection-based, not flag-based:
-    core/       — mandatory. Must contain master_security_auditing_index_micosoft.json
-                  and msobjs_lookup.json, or the pipeline refuses to start.
+    core/       — mandatory. Must contain master_security_auditing_index_micosoft.json,
+                  msobjs_lookup.json and logon_types.json, or the pipeline refuses
+                  to start.
     lookups/    — optional. universal/ and environment/ subfolders are scanned;
                   whatever files are present get loaded, whatever's absent is
                   silently skipped. No profile flag needed — presence of a file
                   is the on/off switch for that enrichment step.
 
 Options:
-    --core-dir     <dir>   Directory with the two mandatory lookups (default: ./core)
+    --core-dir     <dir>   Directory with the mandatory lookups (default: ./core)
     --lookups-dir  <dir>   Directory with universal/ and environment/ subfolders (default: ./lookups)
     --verbose               Enable debug logging
 
 Pipeline flow:
     parser.load()             → raw evtx_dump NDJSON → flat dicts
+    transform.filter_events() → drops disallowed events (e.g. PowerShell other than 4103/4104)
     transform.reduce_schema() → normalized dicts
     enricher.enrich()         → enriched dicts
     writer.write_ndjson()     → NDJSON output for ADX
@@ -60,17 +62,6 @@ def _stage(n: int, label: str) -> None:
     print(f"\n  {_c(C.CYAN, f'[{n}/4]')} {_c(C.WHITE, label)}")
 
 
-# ── In-memory warning collector ───────────────────────────────────────────────
-class WarningCollector(logging.Handler):
-    """Captures all WARNING+ log records into a list for display at summary time."""
-    def __init__(self):
-        super().__init__(logging.WARNING)
-        self.records: list[str] = []
-
-    def emit(self, record: logging.LogRecord) -> None:
-        self.records.append(record.getMessage())
-
-
 def print_help() -> None:
     """Print styled help menu matching the pipeline UI."""
     print()
@@ -104,14 +95,14 @@ def print_help() -> None:
     # Lookup layout
     print(f"  {_c(C.CYAN + C.BOLD, 'lookup layout (detection-based — no profile flag)')}")
     _sep()
-    print(f"  {_c(C.WHITE, 'core/')}  {_c(C.DIM, '(mandatory — pipeline refuses to start without both)')}")
+    print(f"  {_c(C.WHITE, 'core/')}  {_c(C.DIM, '(mandatory — pipeline refuses to start without all three)')}")
     print(f"  {_c(C.DIM, '  master_security_auditing_index_micosoft.json')}")
     print(f"  {_c(C.DIM, '  msobjs_lookup.json')}")
+    print(f"  {_c(C.DIM, '  logon_types.json')}")
     print()
     print(f"  {_c(C.WHITE, 'lookups/universal/')}  {_c(C.DIM, '(optional — loaded if present)')}")
     print(f"  {_c(C.DIM, '  universal_ds_access_mask.json')}")
     print(f"  {_c(C.DIM, '  universal_soc_event_lookup.json')}")
-    print(f"  {_c(C.DIM, '  universal_logon_types.json')}")
     print()
     print(f"  {_c(C.WHITE, 'lookups/environment/')}  {_c(C.DIM, '(optional — loaded if present, forest-specific)')}")
     print(f"  {_c(C.DIM, '  environment_ad_guids.json')}")
@@ -151,18 +142,15 @@ def build_arg_parser() -> argparse.ArgumentParser:
     return p
 
 
-def setup_logging(collector: WarningCollector, verbose: bool) -> None:
+def setup_logging(verbose: bool) -> None:
     """
     Configure logging:
-    - WARNING+ captured by WarningCollector for summary display
-    - DEBUG+ to stdout only if --verbose
-    - INFO suppressed in normal mode (stages handle progress display)
+    - Normal mode: all log output is suppressed. Skipped records and unresolved
+      values are reported through PipelineWarnings / warnings.log instead.
+    - --verbose: DEBUG+ to stdout.
     """
     root = logging.getLogger()
     root.setLevel(logging.DEBUG if verbose else logging.WARNING)
-
-    # Always attach warning collector
-    root.addHandler(collector)
 
     if verbose:
         fmt = logging.Formatter("%(levelname)s %(message)s")
@@ -170,12 +158,17 @@ def setup_logging(collector: WarningCollector, verbose: bool) -> None:
         console.setLevel(logging.DEBUG)
         console.setFormatter(fmt)
         root.addHandler(console)
+    else:
+        # A handler must exist, otherwise Python's last-resort handler prints
+        # every WARNING to stderr and duplicates warnings.log.
+        root.addHandler(logging.NullHandler())
 
 
 def _detect_active_lookups(core_dir: Path, lookups_dir: Path) -> dict[str, bool]:
     """
     Report which optional lookup files are present, for the header display.
     Detection logic mirrors enricher.Lookups.__init__ exactly.
+    (core/ files are mandatory, so they are not listed here.)
     """
     universal_dir = lookups_dir / "universal"
     environment_dir = lookups_dir / "environment"
@@ -183,7 +176,6 @@ def _detect_active_lookups(core_dir: Path, lookups_dir: Path) -> dict[str, bool]
     return {
         "universal_ds_access_mask.json":   (universal_dir / "universal_ds_access_mask.json").exists(),
         "universal_soc_event_lookup.json": (universal_dir / "universal_soc_event_lookup.json").exists(),
-        "universal_logon_types.json":      (universal_dir / "universal_logon_types.json").exists(),
         "environment_ad_guids.json":       (environment_dir / "environment_ad_guids.json").exists(),
         "environment_domain_objects.json": (environment_dir / "environment_domain_objects.json").exists(),
     }
@@ -208,12 +200,17 @@ def print_header(args, core_dir: Path, lookups_dir: Path, active: dict[str, bool
     print()
 
 
-def print_summary(args, written: int, pipeline_warnings: PipelineWarnings) -> None:
+def print_summary(args, written: int, pipeline_warnings: PipelineWarnings, stats: dict) -> None:
     print()
     _sep()
     print(f"  {_c(C.CYAN + C.BOLD, 'summary')}")
     _sep()
     _row("records written", _c(C.GREEN, f"{written:,}"))
+
+    filtered = stats.get("filtered", 0)
+    if filtered:
+        _row("filtered out", _c(C.DIM, f"{filtered:,}"))
+
     _row("output",          args.output)
 
     if not pipeline_warnings.is_empty:
@@ -235,10 +232,10 @@ def main() -> None:
         print_help()
         sys.exit(0)
 
-    collector = WarningCollector()
-    setup_logging(collector, args.verbose)
+    setup_logging(args.verbose)
 
     pw = PipelineWarnings()
+    stats = {"filtered": 0}
 
     core_dir    = Path(args.core_dir)
     lookups_dir = Path(args.lookups_dir)
@@ -253,7 +250,7 @@ def main() -> None:
             core_dir=core_dir,
             lookups_dir=lookups_dir,
         )
-    except FileNotFoundError as exc:
+    except (FileNotFoundError, ValueError) as exc:
         print(f"\n  {_c(C.RED, '✗')} {_c(C.WHITE, str(exc))}\n")
         sys.exit(1)
 
@@ -261,7 +258,8 @@ def main() -> None:
     _stage(1, "Parsing and flattening...")
     records = parser_mod.load(args.input, warnings=pw)
 
-    _stage(2, "Normalizing schema...")
+    _stage(2, "Filtering and normalizing schema...")
+    records = transform_mod.filter_events(records, stats)
     records = transform_mod.reduce_schema(records)
 
     _stage(3, "Enriching records...")
@@ -278,7 +276,7 @@ def main() -> None:
     if not pw.is_empty:
         pw.write("warnings.log")
 
-    print_summary(args, written, pw)
+    print_summary(args, written, pw, stats)
 
 
 if __name__ == "__main__":

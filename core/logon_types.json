@@ -1,0 +1,11 @@
+[
+    {"LogonType": "2",  "Description": "Interactive"},
+    {"LogonType": "3",  "Description": "Network"},
+    {"LogonType": "4",  "Description": "Batch"},
+    {"LogonType": "5",  "Description": "Service"},
+    {"LogonType": "7",  "Description": "Unlock"},
+    {"LogonType": "8",  "Description": "NetworkCleartext"},
+    {"LogonType": "9",  "Description": "NewCredentials"},
+    {"LogonType": "10", "Description": "RemoteInteractive"},
+    {"LogonType": "11", "Description": "CachedInteractive"}
+]
