@@ -7,15 +7,16 @@ Converts raw Windows Event Log exports into clean, enriched NDJSON for ingestion
 ## What it does
 
 1. Flattens raw `evtx_dump` NDJSON — unwraps nested `#attributes`, promotes System fields to top level
-2. Normalizes schema — renames `TimeCreated_SystemTime` → `TimeGenerated`, packs low-value metadata into `AdditionalFields`, drops `xmlns`
-3. Enriches each record:
+2. Filters events — for `Microsoft-Windows-PowerShell` only Event IDs 4103 and 4104 are kept, everything else from that provider is dropped
+3. Normalizes schema — renames `TimeCreated_SystemTime` → `TimeGenerated`, packs low-value metadata into `AdditionalFields`, drops `xmlns`
+4. Enriches each record:
    - `EventDescription` via two-tier lookup (master → fallback)
    - `%%` placeholder codes via `msobjs_lookup.json`
-   - `LogonType` for Events 4624, 4625, 4648
+   - `LogonType` for Events 4624, 4625, 4634, 4626, 4627
    - `AccessMask` for Event 4662 (bitwise decode)
    - `Properties`, `ObjectType` GUIDs for Event 4662 (schema objects + extended rights + property sets)
    - `ObjectName` `%{guid}` references for Event 4662 (domain objects + OUs + containers + account instances)
-4. Outputs one JSON object per line — ready for ADX ingest
+5. Outputs one JSON object per line — ready for ADX ingest
 
 ---
 
@@ -41,12 +42,12 @@ evtx-pipeline/
 ├── generate_lookups.ps1        ← single consolidated generator script
 ├── core/                        ← MANDATORY, outside lookups/
 │   ├── master_security_auditing_index_micosoft.json   (static)
+│   ├── logon_types.json                                (static)
 │   └── msobjs_lookup.json                              (generated with -Core)
 └── lookups/                     ← optional — presence of a file turns its enrichment on
     ├── universal/                (same on any machine, not forest-specific)
     │   ├── universal_ds_access_mask.json          (generated)
-    │   ├── universal_soc_event_lookup.json        (generated)
-    │   └── universal_logon_types.json             (static)
+    │   └── universal_soc_event_lookup.json        (generated)
     └── environment/               (specific to the AD forest you generated it in)
         ├── environment_ad_guids.json              (generated)
         └── environment_domain_objects.json        (generated)
@@ -58,18 +59,35 @@ evtx-pipeline/
 
 Lookup loading is **detection-based**, not flag-based. There is no `--profile` flag anymore.
 
-- `core/` is mandatory. If either file is missing, the pipeline refuses to start.
+- `core/` is mandatory. If any of its three files is missing, the pipeline refuses to start. A lookup file that exists but is not valid JSON also stops the run, with the file path in the error message.
 - Everything under `lookups/universal/` and `lookups/environment/` is optional. If a file is present, that enrichment step runs. If it's absent, that step is silently skipped. No flags needed — you control behavior purely by what you put in the folder.
 
 | File | Tier | Purpose |
 |------|------|---------|
 | `core/master_security_auditing_index_micosoft.json` | Core (mandatory) | EventID → description (Microsoft source) |
 | `core/msobjs_lookup.json` | Core (mandatory) | `%%` code resolution |
+| `core/logon_types.json` | Core (mandatory) | LogonType decode for 4624, 4625, 4634, 4626, 4627 |
 | `lookups/universal/universal_ds_access_mask.json` | Universal (optional) | AccessMask bitwise decode for 4662 |
 | `lookups/universal/universal_soc_event_lookup.json` | Universal (optional) | Fallback EventID descriptions |
-| `lookups/universal/universal_logon_types.json` | Universal (optional) | LogonType decode for 4624, 4625, 4648 |
 | `lookups/environment/environment_ad_guids.json` | Environment (optional) | Schema + extended rights + property set GUIDs for 4662 |
 | `lookups/environment/environment_domain_objects.json` | Environment (optional) | OUs, containers, and computer/user instance GUID resolution for 4662 |
+
+---
+
+## Event filtering
+
+Some providers are noisy and only a few events matter for investigations. Filtering is controlled by `PROVIDER_EVENT_ALLOWLIST` in `transform.py`:
+
+```python
+PROVIDER_EVENT_ALLOWLIST = {
+    "Microsoft-Windows-PowerShell": {4103, 4104},
+}
+```
+
+- A provider listed here keeps **only** the listed Event IDs. Every other record from that provider is dropped before normalization and enrichment.
+- Providers not listed are passed through untouched.
+- The number of dropped records is shown as `filtered out` in the run summary. It is a statistic, not a warning, so it does not create `warnings.log`.
+- To keep another PowerShell event later, add its ID to the set.
 
 ---
 
@@ -99,7 +117,9 @@ One script, three function groups (Core / Universal / Environment), each indepen
 
 Every run **overwrites** its target file(s) — nothing is merged with previous output. Re-run whenever the environment changes.
 
-`generate_lookups.ps1` replaces the five previous scripts (`generate_all_message_lookup.ps1`, `generate_ds_access_mask.ps1`, `generate_lookup.ps1`, `generate_ad_guids.ps1`, `generate_domain_objects.ps1`, `generate_lab_objects.ps1`) — those are removed. Instance-level user/computer GUIDs, previously written to a separate `lab_objects.json`, are now folded directly into `environment_domain_objects.json`.
+`generate_lookups.ps1` replaces the six previous scripts (`generate_all_message_lookup.ps1`, `generate_ds_access_mask.ps1`, `generate_lookup.ps1`, `generate_ad_guids.ps1`, `generate_domain_objects.ps1`, `generate_lab_objects.ps1`) — those are removed. Instance-level user/computer GUIDs, previously written to a separate `lab_objects.json`, are now folded directly into `environment_domain_objects.json`.
+
+`core/master_security_auditing_index_micosoft.json` and `core/logon_types.json` are static, hand-authored files. The script never touches them.
 
 Copy the `core/` and `lookups/` folders to the machine where you run the pipeline.
 
@@ -180,7 +200,7 @@ Use the ADX **Get data** wizard to ingest `out.ndjson`.
 
 **Fields packed into `AdditionalFields`:**
 
-`Provider_Guid`, `Version`, `Level`, `Task`, `Opcode`, `Keywords`, `EventRecordID`, `Execution_ProcessID`, `Execution_ThreadID`, `Correlation`, `Security`
+`Provider_Guid`, `Version`, `Level`, `Task`, `Opcode`, `Keywords`, `EventRecordID`, `Execution_ProcessID`, `Execution_ThreadID`, `EventID_Qualifiers` (System/Application style logs only), plus anything starting with `Correlation_` or `Security_` (for example `Correlation_ActivityID`, `Security_UserID`)
 
 ---
 
@@ -190,7 +210,7 @@ Use the ADX **Get data** wizard to ingest `out.ndjson`.
 |----------|-------|------------|
 | All | `EventDescription` | Two-tier lookup — master → fallback |
 | All | `EventData.*` | `%%` code resolution via `msobjs_lookup.json` |
-| 4624, 4625, 4648 | `EventData.LogonType` | Numeric → friendly name e.g. `3 (Network)` |
+| 4624, 4625, 4634, 4626, 4627 | `EventData.LogonType` | Numeric → friendly name e.g. `3 (Network)` |
 | 4662 | `EventData.AccessMask` | Bitwise decode e.g. `0x100 (Control Access)` |
 | 4662 | `EventData.Properties` | `{guid}` → `{guid} (Name)` |
 | 4662 | `EventData.ObjectType` | `{guid}` → `{guid} (Name)` |

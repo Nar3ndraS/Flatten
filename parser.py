@@ -24,6 +24,10 @@ Raw input shape (from evtx_dump -o jsonl):
         }
     }
 
+Note: on System/Application logs EventID can carry attributes:
+    "EventID": {"#attributes": {"Qualifiers": 16384}, "#text": 7036}
+_process_event collapses this to a scalar EventID (see Step 1b).
+
 Output shape (flat dict, EventData preserved as nested):
     {
         "Provider_Name": "Microsoft-Windows-Security-Auditing",
@@ -117,6 +121,7 @@ def _process_event(raw_event: dict) -> dict:
 
     Steps:
     1. Unwrap all #attributes nodes
+    1b. Collapse an attribute-carrying EventID to a scalar
     2. Separate EventData / UserData from System sections
     3. Flatten all System-level sections to top level
     4. Re-attach EventData as a nested object
@@ -125,6 +130,16 @@ def _process_event(raw_event: dict) -> dict:
     """
     # Step 1: Unwrap #attributes throughout the entire Event
     event = _unwrap_attributes(raw_event)
+
+    # Step 1b: EventID can arrive as {"Qualifiers": N, "#text": ID} on
+    # System/Application logs. Without this it would flatten to
+    # EventID_Qualifiers / EventID_#text and the EventID field would vanish.
+    system = event.get("System")
+    if isinstance(system, dict) and isinstance(system.get("EventID"), dict):
+        raw_id = system["EventID"]
+        system["EventID"] = raw_id.get("#text")
+        if "Qualifiers" in raw_id:
+            system["EventID_Qualifiers"] = raw_id["Qualifiers"]
 
     # Step 2: Separate EventData and UserData — these stay nested
     event_data = event.get("EventData") or event.get("UserData") or None

@@ -6,21 +6,22 @@ Lookup layout (see README):
     core/                                          ← mandatory, outside lookups/
         master_security_auditing_index_micosoft.json
         msobjs_lookup.json
+        logon_types.json
 
     lookups/
         universal/
             universal_ds_access_mask.json          ← optional
             universal_soc_event_lookup.json        ← optional
-            universal_logon_types.json             ← optional
         environment/
             environment_ad_guids.json              ← optional
             environment_domain_objects.json        ← optional
 
 Detection rule: if a file is present it is loaded and that enrichment step
 is active. If a file is absent, that enrichment step is silently skipped —
-no flags needed. The two files under core/ are the only exception: both
-are required, and Lookups.__init__ raises FileNotFoundError if either is
-missing.
+no flags needed. The three files under core/ are the only exception: all
+are required, and Lookups.__init__ raises FileNotFoundError if any is
+missing. A lookup file that exists but is not valid JSON raises ValueError
+with the file path in the message.
 
 Responsibilities:
 - Load all JSON lookup files once at startup into memory
@@ -34,13 +35,13 @@ Responsibilities:
     Example: "%%1538" → "%%1538 (READ_CONTROL)"
     Codes not in msobjs_lookup → left as-is
 - Resolve EventID-scoped fields (field only resolved for specific EventIDs):
-    LogonType in EventIDs {4624, 4625, 4648}
+    LogonType in EventIDs {4624, 4625, 4634, 4626, 4627}
         Strategy: Option B — keep original value, append description
         Example: "3" → "3 (Network)"
-        Values not in universal_logon_types.json → left as-is
+        Values not in core/logon_types.json → left as-is
     AccessMask in EventID 4662 only
         Strategy: decode all set bits, join with |
-        Example: "0x41000" → "0x41000 (Write DACL | Delete)"
+        Example: "0x40100" → "0x40100 (Control Access | Write DACL)"
         Hex values not in universal_ds_access_mask.json bits → left as-is
     GUIDs in EventID 4662 only (Properties, ObjectType fields)
         Strategy: Option B — keep GUID, append name
@@ -76,18 +77,29 @@ _GUID_RE = re.compile(r'\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-
 _PCT_GUID_RE = re.compile(r'%\{[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\}')
 
 # ── Fixed filenames within each tier ────────────────────────────────────────
-# core/ — both mandatory
-CORE_MASTER_FILENAME  = "master_security_auditing_index_micosoft.json"
-CORE_MSOBJS_FILENAME  = "msobjs_lookup.json"
+# core/ — all mandatory
+CORE_MASTER_FILENAME      = "master_security_auditing_index_micosoft.json"
+CORE_MSOBJS_FILENAME      = "msobjs_lookup.json"
+CORE_LOGON_TYPES_FILENAME = "logon_types.json"
 
 # lookups/universal/ — all optional, loaded if present
 UNIVERSAL_DS_ACCESS_MASK_FILENAME = "universal_ds_access_mask.json"
 UNIVERSAL_SOC_EVENT_FILENAME      = "universal_soc_event_lookup.json"
-UNIVERSAL_LOGON_TYPES_FILENAME    = "universal_logon_types.json"
 
 # lookups/environment/ — all optional, loaded if present
 ENVIRONMENT_AD_GUIDS_FILENAME       = "environment_ad_guids.json"
 ENVIRONMENT_DOMAIN_OBJECTS_FILENAME = "environment_domain_objects.json"
+
+
+def _load_json(path: Path):
+    """
+    Read a lookup file (BOM-tolerant) and parse it.
+    Raises ValueError naming the file if it is not valid JSON / not valid UTF-8.
+    """
+    try:
+        return json.loads(path.read_text(encoding="utf-8-sig"))
+    except ValueError as exc:  # JSONDecodeError and UnicodeDecodeError both subclass ValueError
+        raise ValueError(f"Malformed lookup file: {path}\n  {exc}") from exc
 
 
 class Lookups:
@@ -97,7 +109,7 @@ class Lookups:
 
     Detection-based: pass the core/ and lookups/ directories, and each known
     filename is loaded if present. core/ files are mandatory — missing
-    either raises FileNotFoundError. Everything under lookups/universal and
+    any raises FileNotFoundError. Everything under lookups/universal and
     lookups/environment is optional and silently skipped if absent.
     """
 
@@ -108,12 +120,13 @@ class Lookups:
     ):
         """
         Args:
-            core_dir:    Directory containing the two mandatory lookup files.
+            core_dir:    Directory containing the three mandatory lookup files.
             lookups_dir: Directory containing universal/ and environment/
                          subdirectories of optional lookup files.
 
         Raises:
             FileNotFoundError: If a required core/ lookup file is missing.
+            ValueError:        If any lookup file is not valid JSON.
         """
         core_dir = Path(core_dir)
         lookups_dir = Path(lookups_dir)
@@ -126,14 +139,10 @@ class Lookups:
         self.ds_access_mask_map: dict[int, str] = {}  # 0x40000 → "Write DACL"
         self.ad_guids_map: dict[str, str] = {}        # "{guid}" → "Name"
 
-        # Unresolved value tracking — populated during enrichment, read by main.py
-        self.unresolved_pct_codes: set[str] = set()   # %%XXXX codes not in msobjs_map
-        self.unresolved_guids: set[str] = set()        # {guid} not in ad_guids_map
-        self.unresolved_pct_guids: set[str] = set()    # %{guid} not in ad_guids_map
-
         # ── core/ — mandatory ────────────────────────────────────────────────
         master_path = core_dir / CORE_MASTER_FILENAME
         msobjs_path = core_dir / CORE_MSOBJS_FILENAME
+        logon_types_path = core_dir / CORE_LOGON_TYPES_FILENAME
 
         if not master_path.exists():
             raise FileNotFoundError(
@@ -146,14 +155,19 @@ class Lookups:
                 f"core/{CORE_MSOBJS_FILENAME} is mandatory — generate it with "
                 f"'generate_lookups.ps1 -Core'."
             )
+        if not logon_types_path.exists():
+            raise FileNotFoundError(
+                f"Required core lookup not found: {logon_types_path}\n"
+                f"core/{CORE_LOGON_TYPES_FILENAME} is mandatory and must be present."
+            )
 
         # ── lookups/universal/ — optional fallback for EventDescription ──────
         fallback_path = universal_dir / UNIVERSAL_SOC_EVENT_FILENAME
         self._load_event_map(master_path, fallback_path if fallback_path.exists() else None)
 
         self._load_msobjs_map(msobjs_path)
+        self._load_logon_types_map(logon_types_path)
 
-        self._load_logon_types_map(universal_dir / UNIVERSAL_LOGON_TYPES_FILENAME)
         self._load_ds_access_mask_map(universal_dir / UNIVERSAL_DS_ACCESS_MASK_FILENAME)
 
         # ── lookups/environment/ — optional, forest-specific ─────────────────
@@ -171,7 +185,7 @@ class Lookups:
         """
         # Load fallback first (lower priority) — only if it exists
         if fallback_path is not None:
-            fallback_data = json.loads(fallback_path.read_text(encoding="utf-8-sig"))
+            fallback_data = _load_json(fallback_path)
             for entry in fallback_data:
                 key = f"{entry['Provider']}_{entry['EventID']}"
                 self.event_map[key] = entry["Description"]
@@ -180,7 +194,7 @@ class Lookups:
             logger.debug("No universal_soc_event_lookup.json found — fallback EventDescription lookup disabled.")
 
         # Load master (overlays fallback — master wins on conflict)
-        master_data = json.loads(master_path.read_text(encoding="utf-8-sig"))
+        master_data = _load_json(master_path)
         master_count = 0
         for entry in master_data:
             key = f"{entry['Provider']}_{entry['EventID']}"
@@ -193,7 +207,7 @@ class Lookups:
         Build msobjs %% code map.
         Maps "%%XXXX" → "%%XXXX (Description)" for Option B replacement.
         """
-        msobjs_data = json.loads(msobjs_path.read_text(encoding="utf-8-sig"))
+        msobjs_data = _load_json(msobjs_path)
         for entry in msobjs_data:
             code = entry["Code"]                            # e.g. "%%1538"
             desc = entry["Description"]                     # e.g. "READ_CONTROL"
@@ -205,13 +219,9 @@ class Lookups:
         """
         Build logon type map.
         Maps logon type string → "value (Description)" for Option B replacement.
-        Skips silently if the file isn't present — this enrichment is optional.
+        Mandatory (core/) — existence is checked in __init__.
         """
-        if not logon_types_path.exists():
-            logger.debug("No universal_logon_types.json found — LogonType enrichment disabled.")
-            return
-
-        data = json.loads(logon_types_path.read_text(encoding="utf-8-sig"))
+        data = _load_json(logon_types_path)
         for entry in data:
             val = str(entry["LogonType"])           # e.g. "3"
             desc = entry["Description"]             # e.g. "Network"
@@ -230,7 +240,7 @@ class Lookups:
             logger.debug("No universal_ds_access_mask.json found — AccessMask enrichment disabled.")
             return
 
-        data = json.loads(ds_access_mask_path.read_text(encoding="utf-8-sig"))
+        data = _load_json(ds_access_mask_path)
         for entry in data:
             bit = int(entry["Mask"], 16)          # "0x40000" → 262144
             self.ds_access_mask_map[bit] = entry["Description"]
@@ -247,7 +257,7 @@ class Lookups:
             logger.debug("No environment_ad_guids.json found — schema GUID enrichment disabled.")
             return
 
-        data = json.loads(ad_guids_path.read_text(encoding="utf-8-sig"))
+        data = _load_json(ad_guids_path)
         for entry in data:
             guid = entry["GUID"].lower()              # normalize to lowercase
             name = entry["Name"]
@@ -270,7 +280,7 @@ class Lookups:
             logger.debug("No environment_domain_objects.json found — domain object GUID enrichment disabled.")
             return
 
-        data = json.loads(domain_objects_path.read_text(encoding="utf-8-sig"))
+        data = _load_json(domain_objects_path)
         added = 0
         for entry in data:
             guid = entry["GUID"].lower()
@@ -314,7 +324,7 @@ class Lookups:
         Returns Option B format — original hex kept, descriptions appended.
 
         Example:
-            "0x40100" → "0x40100 (Write DACL | Read Property)"
+            "0x40100" → "0x40100 (Control Access | Write DACL)"
             "0x0"     → "0x0"       (no bits set — left as-is)
             "garbage" → "garbage"   (not parseable — left as-is)
 
@@ -400,7 +410,8 @@ class Lookups:
 
 
 # EventIDs that carry a LogonType field in EventData.
-LOGON_TYPE_EVENT_IDS = {4624, 4625, 4648}
+# 4624 logon, 4625 failed logon, 4634 logoff, 4626 user/device claims, 4627 group membership.
+LOGON_TYPE_EVENT_IDS = {4624, 4625, 4634, 4626, 4627}
 
 # EventIDs that carry an AccessMask field in EventData requiring bitwise decode.
 DS_ACCESS_MASK_EVENT_IDS = {4662}

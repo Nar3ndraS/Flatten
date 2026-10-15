@@ -4,6 +4,7 @@ writer.py — Write enriched records to NDJSON output for ADX ingest.
 Responsibilities:
 - Write one JSON object per line (NDJSON format)
 - Use orjson for fast serialization if available, fall back to stdlib json
+- Fall back to stdlib json per record if orjson rejects it (e.g. ints > 64 bit)
 - Flush output progressively — safe for large files
 - Return count of records written
 
@@ -25,7 +26,13 @@ try:
     import orjson
 
     def _serialize(record: dict) -> bytes:
-        return orjson.dumps(record)
+        try:
+            return orjson.dumps(record)
+        except TypeError:
+            # orjson.JSONEncodeError subclasses TypeError. Raised for values it
+            # refuses (ints beyond 64 bit, lone surrogates). ensure_ascii=True
+            # escapes anything unencodable so this fallback cannot fail on text.
+            return json.dumps(record, ensure_ascii=True).encode("utf-8")
 
     logger.debug("Using orjson for serialization.")
 
