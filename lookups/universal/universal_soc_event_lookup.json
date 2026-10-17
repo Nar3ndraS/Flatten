@@ -47,7 +47,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4621,
-        "Description":  "Administrator recovered system from CrashOnAuditFail."
+        "Description":  "Administrator recovered system from CrashOnAuditFail. Users who are not administrators will now be allowed to log on. Some auditable activity might not have been recorded."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -82,7 +82,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4647,
-        "Description":  "User initiated logoff:\r\n\r\nSubject:\r\n\tSecurity ID:\t\t%1\r\n\tAccount Name:\t\t%2\r\n\tAccount Domain:\t\t%3\r\n\tLogon ID:\t\t%4\r\n\r\nThis event is generated when a logoff is initiated."
+        "Description":  "User initiated logoff"
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -97,12 +97,12 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4650,
-        "Description":  "An IPsec main mode security association was established."
+        "Description":  "An IPsec main mode security association was established. Extended mode was not enabled.  Certificate authentication was not used."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4651,
-        "Description":  "An IPsec main mode security association was established."
+        "Description":  "An IPsec main mode security association was established. Extended mode was not enabled.  A certificate was used for authentication."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -177,7 +177,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4666,
-        "Description":  "An application attempted an operation:"
+        "Description":  "An application attempted an operation"
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -342,7 +342,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4714,
-        "Description":  "Data Recovery Agent group policy for Encrypting File System (EFS) has changed."
+        "Description":  "Data Recovery Agent group policy for Encrypting File System (EFS) has changed. The new changes have been applied."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -667,7 +667,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4781,
-        "Description":  "The name of an account was changed:"
+        "Description":  "The name of an account was changed"
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -732,7 +732,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4794,
-        "Description":  "An attempt was made to set the Directory Services Restore Mode\r\nadministrator password."
+        "Description":  "An attempt was made to set the Directory Services Restore Mode"
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -817,7 +817,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4825,
-        "Description":  "A user was denied the access to Remote Desktop."
+        "Description":  "A user was denied the access to Remote Desktop. By default, users are allowed to connect only if they are members of the Remote Desktop Users group or Administrators group."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -996,11 +996,6 @@
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
-        "EventID":  4897,
-        "Description":  "Role separation enabled:\t%1"
-    },
-    {
-        "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4898,
         "Description":  "Certificate Services loaded a template."
     },
@@ -1132,17 +1127,17 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4946,
-        "Description":  "A change was made to the Windows Firewall exception list."
+        "Description":  "A change was made to the Windows Firewall exception list. A rule was added."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4947,
-        "Description":  "A change was made to the Windows Firewall exception list."
+        "Description":  "A change was made to the Windows Firewall exception list. A rule was modified."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4948,
-        "Description":  "A change was made to the Windows Firewall exception list."
+        "Description":  "A change was made to the Windows Firewall exception list. A rule was deleted."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1162,7 +1157,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4952,
-        "Description":  "Windows Firewall ignored parts of a rule because its minor version number is not recognized."
+        "Description":  "Windows Firewall ignored parts of a rule because its minor version number is not recognized. Other parts of the rule will be enforced."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1182,32 +1177,32 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4957,
-        "Description":  "Windows Firewall did not apply the following rule:\r\n\r\nRule Information:\r\n\tID:\t%1\r\n\tName:\t%2\r\n\r\nError Information:\r\n\tReason:\t%3 resolved to an empty set."
+        "Description":  "Windows Firewall did not apply the following rule"
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4958,
-        "Description":  "Windows Firewall did not apply the following rule because the rule referred to items not configured on this computer:"
+        "Description":  "Windows Firewall did not apply the following rule because the rule referred to items not configured on this computer"
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4960,
-        "Description":  "IPsec dropped an inbound packet that failed an integrity check."
+        "Description":  "IPsec dropped an inbound packet that failed an integrity check. If this problem persists, it could indicate a network issue or that packets are being modified in transit to this computer. Verify that the packets sent from the remote computer are the same as those received by this computer. This error might also indicate interoperability problems with other IPsec implementations."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4961,
-        "Description":  "IPsec dropped an inbound packet that failed a replay check."
+        "Description":  "IPsec dropped an inbound packet that failed a replay check. If this problem persists, it could indicate a replay attack against this computer."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4962,
-        "Description":  "IPsec dropped an inbound packet that failed a replay check."
+        "Description":  "IPsec dropped an inbound packet that failed a replay check. The inbound packet had too low a sequence number to ensure it was not a replay."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4963,
-        "Description":  "IPsec dropped an inbound clear text packet that should have been secured."
+        "Description":  "IPsec dropped an inbound clear text packet that should have been secured. If the remote computer is configured with a Request Outbound IPsec policy, this might be benign and expected.  This can also be caused by the remote computer changing its IPsec policy without informing this computer. This could also be a spoofing attack attempt."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1217,22 +1212,22 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4965,
-        "Description":  "IPsec received a packet from a remote computer with an incorrect Security Parameter Index (SPI)."
+        "Description":  "IPsec received a packet from a remote computer with an incorrect Security Parameter Index (SPI). This is usually caused by malfunctioning hardware that is corrupting packets. If these errors persist, verify that the packets sent from the remote computer are the same as those received by this computer. This error might also indicate interoperability problems with other IPsec implementations. In that case, if connectivity is not impeded, then these events can be ignored."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4976,
-        "Description":  "During main mode negotiation, IPsec received an invalid negotiation packet."
+        "Description":  "During main mode negotiation, IPsec received an invalid negotiation packet. If this problem persists, it could indicate a network issue or an attempt to modify or replay this negotiation."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4977,
-        "Description":  "During quick mode negotiation, IPsec received an invalid negotiation packet."
+        "Description":  "During quick mode negotiation, IPsec received an invalid negotiation packet. If this problem persists, it could indicate a network issue or an attempt to modify or replay this negotiation."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4978,
-        "Description":  "During extended mode negotiation, IPsec received an invalid negotiation packet."
+        "Description":  "During extended mode negotiation, IPsec received an invalid negotiation packet. If this problem persists, it could indicate a network issue or an attempt to modify or replay this negotiation."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1257,12 +1252,12 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4983,
-        "Description":  "An IPsec extended mode negotiation failed."
+        "Description":  "An IPsec extended mode negotiation failed. The corresponding main mode security association has been deleted."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  4984,
-        "Description":  "An IPsec extended mode negotiation failed."
+        "Description":  "An IPsec extended mode negotiation failed. The corresponding main mode security association has been deleted."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1282,17 +1277,17 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5027,
-        "Description":  "The Windows Firewall service was unable to retrieve the security policy from the local storage."
+        "Description":  "The Windows Firewall service was unable to retrieve the security policy from the local storage. Windows Firewall will continue to enforce the current policy."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5028,
-        "Description":  "Windows Firewall was unable to parse the new security policy."
+        "Description":  "Windows Firewall was unable to parse the new security policy. Windows Firewall will continue to enforce the current policy."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5029,
-        "Description":  "The Windows Firewall service failed to initialize the driver."
+        "Description":  "The Windows Firewall service failed to initialize the driver. Windows Firewall will continue to enforce the current policy."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1332,7 +1327,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5038,
-        "Description":  "Code integrity determined that the image hash of a file is not valid."
+        "Description":  "Code integrity determined that the image hash of a file is not valid.  The file could be corrupt due to unauthorized modification or the invalid hash could indicate a potential disk device error."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1342,47 +1337,47 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5040,
-        "Description":  "A change was made to IPsec settings."
+        "Description":  "A change was made to IPsec settings. An authentication set was added."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5041,
-        "Description":  "A change was made to IPsec settings."
+        "Description":  "A change was made to IPsec settings. An authentication set was modified."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5042,
-        "Description":  "A change was made to IPsec settings."
+        "Description":  "A change was made to IPsec settings. An authentication set was deleted."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5043,
-        "Description":  "A change was made to IPsec settings."
+        "Description":  "A change was made to IPsec settings. A connection security rule was added."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5044,
-        "Description":  "A change was made to IPsec settings."
+        "Description":  "A change was made to IPsec settings. A connection security rule was modified."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5045,
-        "Description":  "A change was made to IPsec settings."
+        "Description":  "A change was made to IPsec settings. A connection security rule was deleted."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5046,
-        "Description":  "A change was made to IPsec settings."
+        "Description":  "A change was made to IPsec settings. A crypto set was added."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5047,
-        "Description":  "A change was made to IPsec settings."
+        "Description":  "A change was made to IPsec settings. A crypto set was modified."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5048,
-        "Description":  "A change was made to IPsec settings."
+        "Description":  "A change was made to IPsec settings. A crypto set was deleted."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1392,7 +1387,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5050,
-        "Description":  "An attempt to programmatically disable Windows Firewall using a call to INetFwProfile."
+        "Description":  "An attempt to programmatically disable Windows Firewall using a call to INetFwProfile.FirewallEnabled(FALSE) interface was rejected because this API is not supported on this version of Windows. This is most likely due to a program that is incompatible with this version of Windows. Please contact the program\u0027s manufacturer to make sure you have a compatible program version."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1787,7 +1782,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5462,
-        "Description":  "IPsec Policy Agent failed to apply some rules of the active IPsec policy on the computer."
+        "Description":  "IPsec Policy Agent failed to apply some rules of the active IPsec policy on the computer. Use the IP Security Monitor snap-in to diagnose the problem."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1807,17 +1802,17 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5466,
-        "Description":  "IPsec Policy Agent polled for changes to the Active Directory IPsec policy, determined that Active Directory cannot be reached, and will use the cached copy of the Active Directory IPsec policy instead."
+        "Description":  "IPsec Policy Agent polled for changes to the Active Directory IPsec policy, determined that Active Directory cannot be reached, and will use the cached copy of the Active Directory IPsec policy instead. Any changes made to the Active Directory IPsec policy since the last poll could not be applied."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5467,
-        "Description":  "IPsec Policy Agent polled for changes to the Active Directory IPsec policy, determined that Active Directory can be reached, and found no changes to the policy."
+        "Description":  "IPsec Policy Agent polled for changes to the Active Directory IPsec policy, determined that Active Directory can be reached, and found no changes to the policy. The cached copy of the Active Directory IPsec policy is no longer being used."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5468,
-        "Description":  "IPsec Policy Agent polled for changes to the Active Directory IPsec policy, determined that Active Directory can be reached, found changes to the policy, and applied those changes."
+        "Description":  "IPsec Policy Agent polled for changes to the Active Directory IPsec policy, determined that Active Directory can be reached, found changes to the policy, and applied those changes. The cached copy of the Active Directory IPsec policy is no longer being used."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1852,27 +1847,27 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5479,
-        "Description":  "The IPsec Policy Agent service was stopped."
+        "Description":  "The IPsec Policy Agent service was stopped. Stopping this service can put the computer at greater risk of network attack or expose the computer to potential security risks."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5480,
-        "Description":  "IPsec Policy Agent failed to get the complete list of network interfaces on the computer."
+        "Description":  "IPsec Policy Agent failed to get the complete list of network interfaces on the computer. This poses a potential security risk because some of the network interfaces may not get the protection provided by the applied IPsec filters. Use the IP Security Monitor snap-in to diagnose the problem."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5483,
-        "Description":  "The IPsec Policy Agent service failed to initialize its RPC server."
+        "Description":  "The IPsec Policy Agent service failed to initialize its RPC server. The service could not be started."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5484,
-        "Description":  "The IPsec Policy Agent service experienced a critical failure and has shut down."
+        "Description":  "The IPsec Policy Agent service experienced a critical failure and has shut down. The shutdown of this service can put the computer at greater risk of network attack or expose the computer to potential security risks."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  5485,
-        "Description":  "IPsec Policy Agent failed to process some IPsec filters on a plug-and-play event for network interfaces."
+        "Description":  "IPsec Policy Agent failed to process some IPsec filters on a plug-and-play event for network interfaces. This poses a potential security risk because some of the network interfaces may not get the protection provided by the applied IPsec filters. Use the IP Security Monitor snap-in to diagnose the problem."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1962,7 +1957,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  6281,
-        "Description":  "Code Integrity determined that the page hashes of an image file are not valid."
+        "Description":  "Code Integrity determined that the page hashes of an image file are not valid. The file could be improperly signed without page hashes or corrupt due to unauthorized modification. The invalid hashes could indicate a potential disk device error."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1972,7 +1967,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  6401,
-        "Description":  "BranchCache: Received invalid data from a peer."
+        "Description":  "BranchCache: Received invalid data from a peer. Data discarded."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -1991,28 +1986,13 @@
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
-        "EventID":  6405,
-        "Description":  "BranchCache: %2 instance(s) of event id %1 occurred."
-    },
-    {
-        "Provider":  "Microsoft-Windows-Security-Auditing",
-        "EventID":  6406,
-        "Description":  "%1 registered to Windows Firewall to control filtering for the following: \r\n%2."
-    },
-    {
-        "Provider":  "Microsoft-Windows-Security-Auditing",
-        "EventID":  6408,
-        "Description":  "Registered product %1 failed and Windows Firewall is now controlling the filtering for %2."
-    },
-    {
-        "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  6409,
         "Description":  "BranchCache: A service connection point object could not be parsed."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  6410,
-        "Description":  "Code integrity determined that a file does not meet the security requirements to load into a process."
+        "Description":  "Code integrity determined that a file does not meet the security requirements to load into a process. This could be due to the use of shared sections or other issues."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -2062,7 +2042,7 @@
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
         "EventID":  6425,
-        "Description":  "A network client used a legacy RPC method to modify authentication information on a trusted domain object."
+        "Description":  "A network client used a legacy RPC method to modify authentication information on a trusted domain object. The authentication information was encrypted with a legacy encryption algorithm. Consider upgrading the client operating system or application to use the latest and more secure version of this method."
     },
     {
         "Provider":  "Microsoft-Windows-Security-Auditing",
@@ -2072,151 +2052,151 @@
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  1,
-        "Description":  "Process Create:"
+        "Description":  "Process Create"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  2,
-        "Description":  "File creation time changed:"
+        "Description":  "File creation time changed"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  3,
-        "Description":  "Network connection detected:"
+        "Description":  "Network connection detected"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  4,
-        "Description":  "Sysmon service state changed:"
+        "Description":  "Sysmon service state changed"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  5,
-        "Description":  "Process terminated:"
+        "Description":  "Process terminated"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  6,
-        "Description":  "Driver loaded:"
+        "Description":  "Driver loaded"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  7,
-        "Description":  "Image loaded:"
+        "Description":  "Image loaded"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  8,
-        "Description":  "CreateRemoteThread detected:"
+        "Description":  "CreateRemoteThread detected"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  9,
-        "Description":  "RawAccessRead detected:"
+        "Description":  "RawAccessRead detected"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  10,
-        "Description":  "Process accessed:"
+        "Description":  "Process accessed"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  11,
-        "Description":  "File created:"
+        "Description":  "File created"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  12,
-        "Description":  "Registry object added or deleted:"
+        "Description":  "Registry object added or deleted"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  13,
-        "Description":  "Registry value set:"
+        "Description":  "Registry value set"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  14,
-        "Description":  "Registry object renamed:"
+        "Description":  "Registry object renamed"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  15,
-        "Description":  "File stream created:"
+        "Description":  "File stream created"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  16,
-        "Description":  "Sysmon config state changed:"
+        "Description":  "Sysmon config state changed"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  17,
-        "Description":  "Pipe Created:"
+        "Description":  "Pipe Created"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  18,
-        "Description":  "Pipe Connected:"
+        "Description":  "Pipe Connected"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  19,
-        "Description":  "WmiEventFilter activity detected:"
+        "Description":  "WmiEventFilter activity detected"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  20,
-        "Description":  "WmiEventConsumer activity detected:"
+        "Description":  "WmiEventConsumer activity detected"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  21,
-        "Description":  "WmiEventConsumerToFilter activity detected:"
+        "Description":  "WmiEventConsumerToFilter activity detected"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  22,
-        "Description":  "Dns query:"
+        "Description":  "Dns query"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  23,
-        "Description":  "File Delete archived:"
+        "Description":  "File Delete archived"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  24,
-        "Description":  "Clipboard changed:"
+        "Description":  "Clipboard changed"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  25,
-        "Description":  "Process Tampering:"
+        "Description":  "Process Tampering"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  26,
-        "Description":  "File Delete logged:"
+        "Description":  "File Delete logged"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  27,
-        "Description":  "File Block Executable:"
+        "Description":  "File Block Executable"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  28,
-        "Description":  "File Block Shredding:"
+        "Description":  "File Block Shredding"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  29,
-        "Description":  "File Executable Detected:"
+        "Description":  "File Executable Detected"
     },
     {
         "Provider":  "Microsoft-Windows-Sysmon",
         "EventID":  255,
-        "Description":  "Error report:"
+        "Description":  "Error report"
     }
 ]

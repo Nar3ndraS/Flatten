@@ -10,6 +10,11 @@
         "Type":  "UserObject"
     },
     {
+        "GUID":  "{38c481cb-e900-4e17-bc91-0d665afb1ed7}",
+        "Name":  "DA1",
+        "Type":  "UserObject"
+    },
+    {
         "GUID":  "{41770456-0d3b-449a-97f8-3a4bbdc57484}",
         "Name":  "Administrator",
         "Type":  "UserObject"

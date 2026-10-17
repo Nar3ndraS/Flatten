@@ -9,7 +9,7 @@
 #   generate_domain_objects.ps1       -> Get-DomainObjectsLookup (Environment)
 #   generate_lab_objects.ps1          -> folded into Get-DomainObjectsLookup
 #
-# Output layout:
+# Output layout (relative to the folder this script lives in):
 #   core\msobjs_lookup.json                       (Core - never runs by default)
 #   lookups\universal\universal_ds_access_mask.json
 #   lookups\universal\universal_soc_event_lookup.json
@@ -17,12 +17,14 @@
 #   lookups\environment\environment_domain_objects.json
 #
 # core\master_security_auditing_index_micosoft.json and
-# lookups\universal\universal_logon_types.json are static, hand-authored
+# core\logon_types.json are static, hand-authored
 # files and are never touched by this script.
 #
 # Behaviour:
 #   - Every run OVERWRITES its target file(s). Nothing is merged with
 #     previous output. Re-run whenever the environment changes.
+#   - Output always goes next to this script, regardless of the directory
+#     you run it from.
 #   - If none of -Core / -Universal / -Environment are supplied, the script
 #     runs Universal + Environment. Core is opt-in only, ever, because the
 #     msobjs DLL walk is slow and rarely needs to be redone.
@@ -66,7 +68,8 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
-$RootDir        = Get-Location
+# Anchor output to the script's own folder, not the current directory.
+$RootDir        = if ($PSScriptRoot) { $PSScriptRoot } else { (Get-Location).Path }
 $CoreDir        = Join-Path $RootDir "core"
 $LookupsDir     = Join-Path $RootDir "lookups"
 $UniversalDir   = Join-Path $LookupsDir "universal"
@@ -77,14 +80,18 @@ $EnvironmentDir = Join-Path $LookupsDir "environment"
 
 function Write-LookupJson {
     param(
-        [Parameter(Mandatory)] [object]$Data,
+        [Parameter(Mandatory)] [AllowNull()] [object]$Data,
         [Parameter(Mandatory)] [string]$Path
     )
     $dir = Split-Path -Parent $Path
     if (-not (Test-Path -LiteralPath $dir)) {
         New-Item -ItemType Directory -Path $dir -Force | Out-Null
     }
-    $Data | ConvertTo-Json -Depth 3 | Out-File -LiteralPath $Path -Encoding utf8
+
+    # Always write a JSON array: a single result must stay a one-element array
+    # (piping would emit a bare object), and zero results must be [] not [null].
+    $items = @($Data | Where-Object { $null -ne $_ })
+    ConvertTo-Json -InputObject $items -Depth 3 | Out-File -LiteralPath $Path -Encoding utf8
 }
 
 
@@ -96,6 +103,7 @@ function Get-MsobjsLookup {
     <#
         Scans message DLLs (msobjs.dll, adtschema.dll, etc.) with FormatMessage()
         to resolve %%#### style codes used throughout Security auditing events.
+        Each DLL is loaded once and reused for every ID.
         Writes: core\msobjs_lookup.json
     #>
     Write-Host "  [Core] Resolving msobjs %% codes ($MsobjsMinId-$MsobjsMaxId)..."
@@ -131,7 +139,6 @@ namespace NativeMsg
         "kerberos.dll", "ntdsai.dll", "w32time.dll", "dnsapi.dll", "eventlog.dll"
     )
     $system32 = Join-Path $env:SystemRoot "System32"
-    $dllPaths = $dllNames | ForEach-Object { Join-Path $system32 $_ }
 
     $junkPattern = @(
         'Unknown specific access \(bit', 'Undefined UserAccountControl Bit',
@@ -139,35 +146,39 @@ namespace NativeMsg
         'Unused message ID', '^Not used$', '^N/A$', '^Unknown$'
     ) -join '|'
 
-    function Resolve-Code {
-        param([int]$Id, [string[]]$Paths)
+    # Load every DLL once, in priority order. First DLL that resolves an ID wins.
+    $handles = New-Object System.Collections.Generic.List[IntPtr]
+    foreach ($dllName in $dllNames) {
+        $path = Join-Path $system32 $dllName
+        if (-not (Test-Path -LiteralPath $path)) { continue }
+        $hModule = [NativeMsg.WinAPIMsg]::LoadLibraryEx($path, [IntPtr]::Zero, 0x00000002)  # LOAD_LIBRARY_AS_DATAFILE
+        if ($hModule -ne [IntPtr]::Zero) { $handles.Add($hModule) }
+    }
+    Write-Host "    Loaded $($handles.Count) of $($dllNames.Count) message DLLs"
+
+    $results = New-Object System.Collections.Generic.List[object]
+    try {
         $sb = New-Object System.Text.StringBuilder 2048
-        foreach ($path in $Paths) {
-            if (-not (Test-Path -LiteralPath $path)) { continue }
-            $hModule = [NativeMsg.WinAPIMsg]::LoadLibraryEx($path, [IntPtr]::Zero, 0x00000002)
-            if ($hModule -eq [IntPtr]::Zero) { continue }
-            try {
+        for ($id = $MsobjsMinId; $id -le $MsobjsMaxId; $id++) {
+            foreach ($hModule in $handles) {
                 $sb.Clear() | Out-Null
-                $len = [NativeMsg.WinAPIMsg]::FormatMessage($flags, $hModule, [uint32]$Id, 0, $sb, [uint32]$sb.Capacity, [IntPtr]::Zero)
+                $len = [NativeMsg.WinAPIMsg]::FormatMessage($flags, $hModule, [uint32]$id, 0, $sb, [uint32]$sb.Capacity, [IntPtr]::Zero)
                 if ($len -gt 0) {
                     $desc = $sb.ToString().Trim()
                     if ($desc -and $desc -notmatch $junkPattern) {
-                        return [PSCustomObject]@{ Code = "%%$Id"; Description = $desc }
+                        $results.Add([PSCustomObject]@{ Code = "%%$id"; Description = $desc })
+                        break
                     }
                 }
-            } finally {
-                [void][NativeMsg.WinAPIMsg]::FreeLibrary($hModule)
             }
         }
-        return $null
+    } finally {
+        foreach ($hModule in $handles) {
+            [void][NativeMsg.WinAPIMsg]::FreeLibrary($hModule)
+        }
     }
 
-    $results = New-Object System.Collections.Generic.List[object]
-    for ($id = $MsobjsMinId; $id -le $MsobjsMaxId; $id++) {
-        $resolved = Resolve-Code -Id $id -Paths $dllPaths
-        if ($null -ne $resolved) { $results.Add($resolved) }
-    }
-    $results = $results | Sort-Object Code -Unique
+    $results = @($results | Sort-Object Code -Unique)
 
     $outPath = Join-Path $CoreDir "msobjs_lookup.json"
     Write-LookupJson -Data $results -Path $outPath
@@ -188,13 +199,14 @@ function Get-DsAccessMaskLookup {
     Write-Host "  [Universal] Writing DS access mask constants..."
 
     $data = @(
-        [PSCustomObject]@{ Mask = "0x1";        Description = "List Contents" },
-        [PSCustomObject]@{ Mask = "0x2";        Description = "List Object" },
-        [PSCustomObject]@{ Mask = "0x4";        Description = "Add/Delete Self" },
-        [PSCustomObject]@{ Mask = "0x8";        Description = "Read Property" },
-        [PSCustomObject]@{ Mask = "0x10";       Description = "Write Property" },
-        [PSCustomObject]@{ Mask = "0x20";       Description = "Delete Tree" },
-        [PSCustomObject]@{ Mask = "0x40";       Description = "List Object" },
+        [PSCustomObject]@{ Mask = "0x1";        Description = "Create Child" },
+        [PSCustomObject]@{ Mask = "0x2";        Description = "Delete Child" },
+        [PSCustomObject]@{ Mask = "0x4";        Description = "List Contents" },
+        [PSCustomObject]@{ Mask = "0x8";        Description = "Write Self" },
+        [PSCustomObject]@{ Mask = "0x10";       Description = "Read Property" },
+        [PSCustomObject]@{ Mask = "0x20";       Description = "Write Property" },
+        [PSCustomObject]@{ Mask = "0x40";       Description = "Delete Tree" },
+        [PSCustomObject]@{ Mask = "0x80";       Description = "List Object" },
         [PSCustomObject]@{ Mask = "0x100";      Description = "Control Access" },
         [PSCustomObject]@{ Mask = "0x10000";    Description = "Delete" },
         [PSCustomObject]@{ Mask = "0x20000";    Description = "Read Control" },
@@ -218,6 +230,9 @@ function Get-SocEventLookup {
     <#
         Extracts EventID descriptions from registered providers via Get-WinEvent.
         Serves as a fallback behind core\master_security_auditing_index_micosoft.json.
+        Only the first line of each description is used; descriptions whose first
+        line still contains a %N placeholder are skipped (the template is not a
+        usable description).
         Writes: lookups\universal\universal_soc_event_lookup.json
     #>
     Write-Host "  [Universal] Extracting provider event descriptions..."
@@ -228,19 +243,21 @@ function Get-SocEventLookup {
             $provider = Get-WinEvent -ListProvider $providerName -ErrorAction Stop
             foreach ($eventDef in $provider.Events) {
                 if ([string]::IsNullOrWhiteSpace($eventDef.Description)) { continue }
-                $description = [regex]::Match($eventDef.Description, '^[^.?!]+[.?!]').Value.Trim()
-                if ([string]::IsNullOrWhiteSpace($description)) {
-                    $description = ($eventDef.Description -split '\r?\n')[0].Trim()
-                }
-                if ($description -match '^%[0-9]+$') { continue }
+
+                $description = ($eventDef.Description -split '\r?\n' | Where-Object { $_.Trim() } | Select-Object -First 1)
+                if (-not $description) { continue }
+                $description = $description.Trim().TrimEnd(':').Trim()
+                if ([string]::IsNullOrWhiteSpace($description)) { continue }
+                if ($description -match '%\d') { continue }
+
                 [PSCustomObject]@{ Provider = $providerName; EventID = $eventDef.Id; Description = $description }
             }
         } catch {
-            Write-Warning "    Provider not found: $providerName"
+            Write-Warning "    Could not read provider ${providerName}: $($_.Exception.Message)"
         }
     }
 
-    $results = $results | Sort-Object Provider, EventID, Description -Unique
+    $results = @($results | Sort-Object Provider, EventID, Description -Unique)
 
     $outPath = Join-Path $UniversalDir "universal_soc_event_lookup.json"
     Write-LookupJson -Data $results -Path $outPath
@@ -316,7 +333,7 @@ function Get-AdGuidsLookup {
     Write-Host "    Pass 2 (extended rights): $extCount objects"
     Write-Host "    Pass 3 (property sets):   $propertySetCount objects"
 
-    $results = $results | Sort-Object GUID -Unique
+    $results = @($results | Sort-Object GUID -Unique)
 
     $outPath = Join-Path $EnvironmentDir "environment_ad_guids.json"
     Write-LookupJson -Data $results -Path $outPath
@@ -437,7 +454,7 @@ function Get-DomainObjectsLookup {
         Write-Host "    (disabled accounts skipped - pass -IncludeDisabledAccounts to include them)"
     }
 
-    $results = $results | Sort-Object GUID -Unique
+    $results = @($results | Sort-Object GUID -Unique)
 
     $outPath = Join-Path $EnvironmentDir "environment_domain_objects.json"
     Write-LookupJson -Data $results -Path $outPath
@@ -479,7 +496,7 @@ if ($Core) {
     Write-Host "-- Core --"
     foreach ($key in $CoreFunctions.Keys) {
         if ($SkipCore -contains $key) {
-            Write-Host "  [Core] Skipping $key (--SkipCore)"
+            Write-Host "  [Core] Skipping $key (-SkipCore)"
             continue
         }
         & $CoreFunctions[$key]
@@ -491,7 +508,7 @@ if ($Universal) {
     Write-Host "-- Universal --"
     foreach ($key in $UniversalFunctions.Keys) {
         if ($SkipUniversal -contains $key) {
-            Write-Host "  [Universal] Skipping $key (--SkipUniversal)"
+            Write-Host "  [Universal] Skipping $key (-SkipUniversal)"
             continue
         }
         & $UniversalFunctions[$key]
@@ -503,7 +520,7 @@ if ($Environment) {
     Write-Host "-- Environment --"
     foreach ($key in $EnvironmentFunctions.Keys) {
         if ($SkipEnvironment -contains $key) {
-            Write-Host "  [Environment] Skipping $key (--SkipEnvironment)"
+            Write-Host "  [Environment] Skipping $key (-SkipEnvironment)"
             continue
         }
         & $EnvironmentFunctions[$key]
